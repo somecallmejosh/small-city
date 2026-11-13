@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+.sites/
+*.tar.gz
+.env*
+!.env.example
+qa/
+public/assets/new-studio-images/
+.claude/
+tasks/
+dist/
+.openai/

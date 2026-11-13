@@ -1,0 +1,12 @@
+{
+  "name": "small-city-studios",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/serve.mjs",
+    "check": "node scripts/check.mjs && node --test scripts/motion.test.mjs scripts/ab-player.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
