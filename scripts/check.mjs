@@ -14,7 +14,7 @@ for (const file of htmlFiles) {
   assert.match(html, /<link rel="canonical"/, `Canonical: ${file}`);
   assert.match(html, /<main\b[^>]*\bid="main"/, `Main landmark: ${file}`);
   assert(!/tabindex="[1-9]/.test(html), `Positive tab order: ${file}`);
-  assert.match(html, /\/assets\/motion\.js/, `Motion preference controller: ${file}`);
+  assert.match(html, /\/assets\/motion\.js/, `Motion controller: ${file}`);
   assert(!html.includes('tel:8609873424'), 'Inconsistent old booking phone');
   for (const [, raw] of html.matchAll(/(?:href|src)="([^"\s]+)"/g)) {
     if (!raw.startsWith('/') || raw.startsWith('//')) continue;
@@ -55,8 +55,8 @@ for (const file of htmlFiles) {
   assert(!dash, `Em/en dash in ${file}: "${dash?.[0]}"`);
 }
 
-// Motion gate: every animation must sit inside a prefers-reduced-motion:no-preference block or
-// a [data-motion=full] selector, so device and in-page reduction always stop it.
+// Motion gate: every animation must sit inside a prefers-reduced-motion:no-preference block,
+// so a device reduced-motion request always stops it.
 let gatedAnimations = 0;
 for (const name of ['styles.css', 'motion.css']) {
   const css = (await readFile(new URL(`../src/${name}`, import.meta.url), 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
@@ -68,7 +68,7 @@ for (const name of ['styles.css', 'motion.css']) {
       const decl = buffer.trim();
       const m = decl.match(/^animation(?:-name|-timeline)?\s*:\s*(.+)$/);
       if (m && !/^none\b/.test(m[1]) && !stack.some(s => s.startsWith('@keyframes'))) {
-        const gated = stack.some(s => /prefers-reduced-motion:\s*no-preference/.test(s) || s.includes('[data-motion=full]'));
+        const gated = stack.some(s => /prefers-reduced-motion:\s*no-preference/.test(s));
         assert(gated, `Ungated animation in src/${name}: ${stack.at(-1)} { ${decl} }`);
         gatedAnimations++;
       }
@@ -79,6 +79,22 @@ for (const name of ['styles.css', 'motion.css']) {
     buffer += ch;
   }
 }
+
+// Usability gates (tasks/heuristics-audit.md).
+// The phone number lives in src/components.mjs only; app.js reads it from the page.
+const appJs = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
+assert(!/\d{3}-\d{3}-\d{4}|\+1\d{10}/.test(appJs), 'Hard-coded phone number in src/app.js: read it from data-tel/data-phone');
+// A booking link on a service page keeps that page's service, so the form doesn't preselect another.
+let serviceBookingLinks = 0;
+for (const [page, key] of [['mixing', 'mixing'], ['recording', 'recording'], ['production', 'beats']]) {
+  const main = (await readFile(join(root, page, 'index.html'), 'utf8')).match(/<main\b[\s\S]*<\/main>/)[0];
+  for (const [, href] of main.matchAll(/href="(\/booking\/[^"]*)"/g)) {
+    assert.equal(href, `/booking/?service=${key}`, `Booking link without its service on /${page}/: ${href}`);
+    serviceBookingLinks++;
+  }
+}
+// The booking form defaults to "Not sure yet" when no service is passed.
+assert.match(await readFile(join(root, 'booking', 'index.html'), 'utf8'), /value="unsure" required checked/, 'Booking form should default to "Not sure yet"');
 
 execFileSync(process.execPath, ['--check', resolve(new URL('../src/app.js', import.meta.url).pathname)]);
 execFileSync(process.execPath, ['--check', resolve(new URL('../src/motion.js', import.meta.url).pathname)]);

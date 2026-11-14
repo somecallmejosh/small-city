@@ -7,13 +7,12 @@ if (menuToggle && mobileNav) {
     const open = menuToggle.getAttribute('aria-expanded') !== 'true';
     menuToggle.setAttribute('aria-expanded', String(open));
     mobileNav.hidden = !open;
-    if (open) {
-      const settings = document.querySelector('.motion-settings');
-      if (settings) settings.open = false;
-    }
     if (open) motion.animate(mobileNav, [{ opacity: .15, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 120 });
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !mobileNav.hidden) { closeMenu(); menuToggle.focus(); } });
+  // A tap outside the menu, or following one of its links (including same-page ones), closes it.
+  document.addEventListener('pointerdown', e => { if (!mobileNav.hidden && !mobileNav.contains(e.target) && !menuToggle.contains(e.target)) closeMenu(); });
+  mobileNav.addEventListener('click', e => { if (e.target.closest('a')) closeMenu(); });
   matchMedia('(min-width: 1000px)').addEventListener('change', e => { if (e.matches) closeMenu(); });
 }
 
@@ -29,9 +28,10 @@ if (dialog) {
     dialog.querySelector('#video-title').textContent = button.dataset.title;
     dialog.querySelector('#video-fallback').href = `https://www.youtube.com/watch?v=${id}`;
     const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?rel=0`;
+    // The visitor pressed play on the tile, so the embed starts playing too.
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&autoplay=1`;
     iframe.title = button.dataset.title;
-    iframe.allow = 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+    iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen';
     iframe.referrerPolicy = 'strict-origin-when-cross-origin';
     iframe.allowFullscreen = true;
     videoContainer.replaceChildren(iframe);
@@ -78,8 +78,14 @@ if (form) {
       catch { return 'Enter a full link beginning with https://, or leave this blank.'; }
     },
   };
+  // "soundcloud.com/x" or "www.dropbox.com/..." is a link the visitor meant; add the scheme for them.
+  const normalizeLink = value => {
+    const v = value.trim();
+    return v && !/^[a-z][\w+.-]*:/i.test(v) && /^[\w-]+(\.[\w-]+)+([/?#]|$)/.test(v) ? `https://${v}` : v;
+  };
   function checkField(name) {
     const input = form.elements[name];
+    if (name === 'demo') input.value = normalizeLink(input.value);
     const error = document.querySelector(`#${name}-error`);
     const message = validators[name](input.value);
     input.setAttribute('aria-invalid', String(Boolean(message)));
@@ -129,7 +135,7 @@ if (form) {
     lines.push('', 'Can we discuss the scope, price, and next steps?');
     messageText.value = lines.join('\n');
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    document.querySelector('#send-text').href = `sms:+18609930052${iOS ? '&' : '?'}body=${encodeURIComponent(messageText.value)}`;
+    document.querySelector('#send-text').href = `sms:${form.dataset.tel}${iOS ? '&' : '?'}body=${encodeURIComponent(messageText.value)}`;
     form.hidden = true;
     review.hidden = false;
     document.querySelector('#review-heading').focus();
@@ -147,12 +153,13 @@ if (form) {
   document.querySelector('#copy-message').addEventListener('click', async () => {
     const status = document.querySelector('#copy-status');
     try {
-      await navigator.clipboard.writeText(messageText.value);
-      status.textContent = 'Message copied. Paste it into a text to 860-993-0052.';
+      // A clipboard stuck on a permission prompt counts as a failure after 1.5 s.
+      await Promise.race([navigator.clipboard.writeText(messageText.value), new Promise((_, reject) => setTimeout(reject, 1500))]);
+      status.textContent = `Message copied. Paste it into a text to ${form.dataset.phone}.`;
     } catch {
       messageText.focus();
       messageText.select();
-      status.textContent = 'Select and copy the message above, then text it to 860-993-0052.';
+      status.textContent = `Select and copy the message above, then text it to ${form.dataset.phone}.`;
     }
   });
   form.querySelector('button[type=submit]').disabled = false;
@@ -164,6 +171,28 @@ document.querySelectorAll('a[data-sms-body]').forEach(anchor => {
   anchor.href = `${anchor.getAttribute('href')}${iOS ? '&' : '?'}body=${encodeURIComponent(anchor.dataset.smsBody)}`;
 });
 
+// sms: needs a texting app. Phones and Macs (Messages) have one; most other desktops don't, and the
+// link does nothing. There, a text link copies the number (or the prepared message) and says so.
+if (!/iPhone|iPad|iPod|Android|Macintosh/.test(navigator.userAgent) && !matchMedia('(pointer: coarse)').matches) {
+  const toast = document.createElement('p');
+  toast.className = 'sms-toast';
+  toast.setAttribute('role', 'status');
+  document.body.append(toast);
+  let timer;
+  const say = text => { toast.textContent = text; clearTimeout(timer); timer = setTimeout(() => { toast.textContent = ''; }, 8000); };
+  document.addEventListener('click', async event => {
+    const anchor = event.target.closest('a[href^="sms:"]');
+    if (!anchor) return;
+    event.preventDefault();
+    if (anchor.id === 'send-text') { document.querySelector('#copy-message').click(); return; }
+    const d = anchor.getAttribute('href').match(/(\d{10})(?!\d)/)?.[1] || '';
+    const phone = `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+    // Say it straight away; the clipboard can wait on a permission prompt.
+    say(`Text ${phone} from your phone.`);
+    try { await navigator.clipboard.writeText(phone); say(`Number copied: ${phone}. Text it from your phone.`); } catch { /* The number is already on screen. */ }
+  });
+}
+
 // The room lightbox. The clicked photo morphs into the dialog with a same-document View Transition
 // (only the active image carries view-transition-name). Reduced motion or no API: instant swap.
 const roomDialog = document.querySelector('#room-dialog');
@@ -172,6 +201,7 @@ if (roomDialog) {
   const big = roomDialog.querySelector('.room-dialog-img');
   const title = roomDialog.querySelector('#room-dialog-title');
   const caption = roomDialog.querySelector('.room-dialog-cap');
+  const count = roomDialog.querySelector('.room-count');
   let index = 0;
   const thumb = i => frames[i].querySelector('img');
   const morph = update => (motion.reduced || !document.startViewTransition) ? Promise.resolve(update()) : document.startViewTransition(update).finished;
@@ -181,7 +211,10 @@ if (roomDialog) {
     big.src = frame.dataset.full;
     big.alt = frame.dataset.alt;
     title.textContent = frame.dataset.label;
-    caption.textContent = frame.dataset.line;
+    count.textContent = `${index + 1} / ${frames.length}`;
+    // The caption is a polite live region: Previous/Next announce the new photo and its position.
+    const position = Object.assign(document.createElement('span'), { className: 'visually-hidden', textContent: `${frame.dataset.label}, photo ${index + 1} of ${frames.length}. ` });
+    caption.replaceChildren(position, frame.dataset.line);
     try { await big.decode(); } catch { /* Show it anyway. */ }
   };
   const open = async i => {
@@ -220,4 +253,64 @@ if (roomDialog) {
     if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) close();
   });
   roomDialog.addEventListener('close', () => { document.body.classList.remove('dialog-open'); frames[index].focus(); });
+}
+
+// Client reviews: one pass through every quote, then stop. The CSS meter is the timer, so hover,
+// focus, an off-screen section or a background tab hold it. Prev/Next stop the rotation for good.
+const reviews = document.querySelector('[data-reviews]');
+if (reviews) {
+  const slides = [...reviews.querySelectorAll('.review')];
+  const track = reviews.querySelector('.reviews-track');
+  const controls = reviews.querySelector('.reviews-controls');
+  const toggle = reviews.querySelector('[data-review-toggle]');
+  const index = reviews.querySelector('[data-review-index]');
+  const device = matchMedia('(prefers-reduced-motion: reduce)');
+  let current = 0, shown = 1, inView = false;
+  const dwell = el => Math.min(14, Math.max(6, 2.5 + el.textContent.trim().split(/\s+/).length * 0.3));
+  const restartMeter = () => {
+    const meter = reviews.querySelector('.reviews-meter>span');
+    reviews.style.setProperty('--dwell', `${dwell(slides[current])}s`);
+    meter.replaceWith(meter.cloneNode());
+  };
+  const show = (i, announce) => {
+    const previous = current;
+    current = (i + slides.length) % slides.length;
+    track.setAttribute('aria-live', announce ? 'polite' : 'off');
+    slides.forEach((slide, n) => { slide.inert = n !== current; });
+    index.textContent = String(current + 1).padStart(2, '0');
+    if (previous !== current) motion.animate(slides[current], [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 420, easing: 'cubic-bezier(.2,.7,.2,1)' });
+    restartMeter();
+  };
+  const setPlaying = on => {
+    const playing = on && !device.matches;
+    reviews.classList.toggle('is-playing', playing);
+    toggle.querySelector('.label').textContent = playing ? 'Pause' : 'Play';
+    toggle.setAttribute('aria-label', playing ? 'Pause reviews' : 'Play reviews');
+    toggle.hidden = device.matches;
+    restartMeter();
+  };
+  const hold = () => reviews.classList.toggle('is-held', !inView || document.hidden);
+
+  reviews.classList.add('reviews-ready');
+  controls.hidden = false;
+  show(0, false);
+  setPlaying(true);
+  hold();
+
+  reviews.addEventListener('animationend', e => {
+    if (e.animationName !== 'review-meter') return;
+    if (shown >= slides.length) { setPlaying(false); return; }
+    shown++;
+    show(current + 1, false);
+  });
+  toggle.addEventListener('click', () => {
+    const play = !reviews.classList.contains('is-playing');
+    if (play) shown = 1;
+    setPlaying(play);
+  });
+  reviews.querySelector('[data-review-prev]').addEventListener('click', () => { setPlaying(false); show(current - 1, true); });
+  reviews.querySelector('[data-review-next]').addEventListener('click', () => { setPlaying(false); show(current + 1, true); });
+  new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; hold(); }, { threshold: 0.35 }).observe(track);
+  document.addEventListener('visibilitychange', hold);
+  device.addEventListener('change', () => setPlaying(false));
 }

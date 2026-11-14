@@ -34,9 +34,12 @@ export const lit = text => text.replace(/\.$/, '<span class="lit-dot">.</span>')
 // A session sheet: studio facts as mono label/value pairs on cyan rims.
 export const sessionSheet = items => `<dl class="sheet">${items.map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>`;
 
+// Every inner page opens with the same two-level trail back home.
+export const breadcrumb = crumb => `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">${crumb}</span></nav>`;
+
 // Inner-page hero: the room's red light from the top right, a giant title, a lead, and the session sheet.
-export function pageHero({ kicker, title, lead = '', sheet = null, extra = '', className = '' }) {
-  return `<section class="page-hero${className ? ' ' + className : ''}" aria-labelledby="page-title"><div class="container"><p class="eyebrow page-kicker">${kicker}</p><h1 class="page-title" id="page-title">${lit(title)}</h1>${lead || extra ? `<div class="page-hero-foot">${lead ? `<p class="page-lead">${lead}</p>` : ''}${extra}</div>` : ''}${sheet ? sessionSheet(sheet) : ''}</div></section>`;
+export function pageHero({ kicker, title, crumb = '', lead = '', sheet = null, extra = '', className = '' }) {
+  return `<section class="page-hero${className ? ' ' + className : ''}" aria-labelledby="page-title"><div class="container">${crumb ? breadcrumb(crumb) : ''}<p class="eyebrow page-kicker">${kicker}</p><h1 class="page-title" id="page-title">${lit(title)}</h1>${lead || extra ? `<div class="page-hero-foot">${lead ? `<p class="page-lead">${lead}</p>` : ''}${extra}</div>` : ''}${sheet ? sessionSheet(sheet) : ''}</div></section>`;
 }
 
 export function studioImage(name, alt, { sizes = '(max-width: 759px) calc(100vw - 48px), (max-width: 1199px) calc((100vw - 112px) / 2), 600px', priority = false, className = '', lazy = true } = {}) {
@@ -61,24 +64,21 @@ export function studioGallery({ all = false } = {}) {
 }
 
 export function roomDialog() {
-  return `<dialog class="room-dialog" id="room-dialog" aria-labelledby="room-dialog-title"><div class="room-dialog-bar"><h2 id="room-dialog-title">The room</h2><div class="room-dialog-actions"><button type="button" class="room-prev">${label('Previous')}</button><button type="button" class="room-next">${label('Next')}</button><button type="button" class="dialog-close room-close" aria-label="Close photo">${icon('close')}</button></div></div><img class="room-dialog-img" alt="" width="1920" height="1440"><p class="room-dialog-cap"></p></dialog>`;
+  return `<dialog class="room-dialog" id="room-dialog" aria-labelledby="room-dialog-title"><div class="room-dialog-bar"><div class="room-dialog-heading"><h2 id="room-dialog-title">The room</h2><p class="room-count" aria-hidden="true"></p></div><div class="room-dialog-actions"><button type="button" class="room-prev">${label('Previous')}</button><button type="button" class="room-next">${label('Next')}</button><button type="button" class="dialog-close room-close" aria-label="Close photo" autofocus>${icon('close')}</button></div></div><img class="room-dialog-img" alt="" width="1920" height="1440"><p class="room-dialog-cap" aria-live="polite"></p></dialog>`;
 }
 
-export function motionSettings() {
-  return `<details class="motion-settings" hidden><summary><span class="motion-glyph" aria-hidden="true"><i></i><i></i><i></i></span>Motion<span class="motion-current" aria-hidden="true">Device</span></summary><div class="motion-panel"><fieldset><legend>How much movement?</legend><label><input type="radio" name="motion-preference" value="system" checked>Follow my device</label><label><input type="radio" name="motion-preference" value="reduced">Reduce motion</label></fieldset><p>Reduced motion on your device is always respected. Your choice is saved on this browser.</p></div></details>`;
-}
+const navItems = [['/recording/', 'Recording'], ['/mixing/', 'Mixing'], ['/production/', 'Beats'], ['/projects/', 'Credits'], ['/bio/', 'Chase Briley'], ['/contact/', 'Contact']];
 
-const navItems = [['/recording/', 'Recording'], ['/mixing/', 'Mixing'], ['/production/', 'Beats'], ['/projects/', 'Credits'], ['/bio/', 'Chase Briley']];
-
+// The header sticks, and "Book a session" stays in it at every width, so booking is one tap from anywhere.
 export function header(path) {
   const nav = navItems.map(([href, name]) => `<a href="${href}"${path === href ? ' aria-current="page"' : ''}>${label(name)}</a>`).join('');
   return `<a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header"><div class="container header-inner">
     <a class="brand" href="/" aria-label="Small City Studios homepage"><img src="/assets/logo-light.svg" width="54" height="37" alt=""><span>SMALL CITY<br>STUDIOS<span class="brand-period">.</span></span></a>
     <nav class="desktop-nav" aria-label="Main navigation">${nav}</nav>
-    <div class="header-tools">${motionSettings()}<a class="header-phone" href="tel:${site.tel}"><span class="visually-hidden">Call or text </span>${site.phone}</a><a class="header-cta" href="/booking/">${recLight}${label('Book a session')}</a></div>
+    <div class="header-tools"><a class="header-phone" href="tel:${site.tel}"><span class="visually-hidden">Call or text </span>${site.phone}</a><a class="header-cta" href="/booking/"${path === '/booking/' ? ' aria-current="page"' : ''}>${recLight}${label('Book<span class="cta-long"> a session</span>')}</a></div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav"><span>Menu</span><span class="menu-lines" aria-hidden="true"></span></button>
-  </div><nav class="mobile-nav container" id="mobile-nav" aria-label="Mobile navigation" hidden>${nav}<a href="/booking/">Book a session</a></nav></header>`;
+  </div><nav class="mobile-nav container" id="mobile-nav" aria-label="Mobile navigation" hidden>${nav}<a class="mobile-phone" href="tel:${site.tel}">Call or text ${site.phone}</a></nav></header>`;
 }
 
 export function footer(path) {
@@ -86,7 +86,7 @@ export function footer(path) {
   return `<footer class="site-footer"><div class="container">
     <div class="footer-top"><a class="brand" href="/" aria-label="Small City Studios homepage"><img src="/assets/logo-light.svg" width="42" height="28" alt=""><span>SMALL CITY STUDIOS<span class="brand-period">.</span></span></a><p>Rap recording, mixing &amp; production / East Hartford, CT</p></div>
     <nav class="footer-nav" aria-label="Footer navigation">${nav}</nav>
-    <div class="footer-grid"><div><p class="eyebrow">Studio</p><address>87 Church Street<br>East Hartford, CT 06108</address><p class="small muted">By appointment only.</p></div><div><p class="eyebrow">Call / text</p><a href="tel:${site.tel}">${site.phone}</a><div class="footer-links"><a href="/booking/">Book a session</a><a href="/contact/">Directions</a></div></div><div><p class="eyebrow">Listen</p><div class="footer-links"><a href="${site.instagram}" target="_blank" rel="noopener noreferrer">Instagram${newTab}</a><a href="${site.spotify}" target="_blank" rel="noopener noreferrer">Spotify${newTab}</a><a href="${site.youtube}" target="_blank" rel="noopener noreferrer">YouTube${newTab}</a></div></div></div>
+    <div class="footer-grid"><div><p class="eyebrow">Studio</p><address>87 Church Street<br>East Hartford, CT 06108</address><p class="small muted">By appointment only.</p></div><div><p class="eyebrow">Call / text</p><a href="tel:${site.tel}">${site.phone}</a><div class="footer-links"><a href="/booking/">Book a session</a><a href="/contact/">Contact &amp; directions</a></div></div><div><p class="eyebrow">Listen</p><div class="footer-links"><a href="${site.instagram}" target="_blank" rel="noopener noreferrer">Instagram${newTab}</a><a href="${site.spotify}" target="_blank" rel="noopener noreferrer">Spotify${newTab}</a><a href="${site.youtube}" target="_blank" rel="noopener noreferrer">YouTube${newTab}</a></div></div></div>
     <div class="footer-bottom"><p>© ${new Date().getFullYear()} Small City Studios.</p><p>Rap · Hip-hop · R&amp;B</p><a href="/privacy/">Privacy</a><a href="#top">Back to top</a></div>
   </div></footer>`;
 }
@@ -94,8 +94,9 @@ export function footer(path) {
 // Chase's own voice is set wide (.voice) and signed; studio information stays condensed and mono.
 export const signature = (role = 'Owner, engineer, producer') => `<p class="signature"><span class="sig-name">Chase Briley</span> <span class="sig-role">/ ${role}</span></p>`;
 
-export function cta(title = 'Call Chase.', text = 'Text me the song and what it needs. We lock in scope and price before anything gets booked.') {
-  return `<section class="closing-section"><div class="container"><p class="closing-status"><span class="rec-dot" aria-hidden="true"></span>By appointment</p><h2 class="closing-title">${title}</h2><p class="closing-phone"><a href="tel:${site.tel}"><span class="visually-hidden">Call </span>${site.phone}</a></p><div class="closing-foot"><div><p class="voice">${text}</p>${signature()}</div><div class="closing-actions">${link('sms:' + site.tel, 'Text me the song')}${link('/booking/', 'Book a session', 'button button-outline')}</div></div></div></section>`;
+// service: a booking-form key (mixing, recording, beats) so the closing CTA keeps the page's context.
+export function cta(title = 'Call Chase.', text = 'Text me the song and what it needs. We lock in scope and price before anything gets booked.', service = '') {
+  return `<section class="closing-section"><div class="container"><p class="closing-status"><span class="rec-dot" aria-hidden="true"></span>By appointment</p><h2 class="closing-title">${title}</h2><p class="closing-phone"><a href="tel:${site.tel}"><span class="visually-hidden">Call </span>${site.phone}</a></p><div class="closing-foot"><div><p class="voice">${text}</p>${signature()}</div><div class="closing-actions">${link('sms:' + site.tel, 'Text me the song')}${link('/booking/' + (service ? '?service=' + service : ''), 'Book a session', 'button button-outline')}</div></div></div></section>`;
 }
 
 export function faq(items) {
@@ -107,7 +108,6 @@ export const selectedWork = [
   { id: 'jCqH_mUgHJM', artist: 'Flee Cheese & TheHolyQuraun', title: 'Cartier Santos', image: 'project-cartier.jpg' },
   { id: 'sfOsi7lr6bQ', artist: 'ESCO CRACK ft. Bandgang Lonnie & Shredgang Mone', title: 'Hartford to Detroit', image: 'project-hartford.jpg' },
   { id: '926fxNbTWdw', artist: 'KI Blixk', title: 'Word Around Town', image: 'project-blixk.jpg' },
-  { id: 't6etciQhR9U', artist: 'Goonie Jay', title: 'Talking to Myself', image: 'project-goonie.jpg' },
   { id: 'MVvi3U6nh_0', artist: 'Young Mar', title: 'How I’m Living', image: 'project-mar.jpg' },
 ];
 
@@ -115,19 +115,18 @@ export function workCards(items = selectedWork.slice(0, 3)) {
   return `<div class="work-grid">${items.map((p, i) => `<article class="work-card"><button type="button" class="work-play" data-video="${p.id}" data-title="${escape(p.artist + ' - ' + p.title)}" aria-label="Play ${escape(p.title)} by ${escape(p.artist)}"><img src="/assets/${p.image}" alt="" width="480" height="360" loading="lazy"><span class="play-mark">${icon('play')}</span><span class="video-label">Play video ${icon('play')}</span></button><div class="work-caption"><h3>${escape(p.title)}</h3><p>${escape(p.artist)}</p></div></article>`).join('')}</div>`;
 }
 
-// Made in this room: the six selected credits as a wall of official video stills (room-light duotone,
+// Made in this room: the selected credits as a wall of official video stills (room-light duotone,
 // full colour on hover/focus). Each tile is the play button for the existing video dialog.
-const wallOrder = [0, 1, 2, 3, 5, 4];
 const stillWidths = id => (id === 'sfOsi7lr6bQ' ? [640] : [640, 1280]);
 // One credit still: room-light duotone, full colour on hover/focus, opens the video dialog.
 export function wallTile(p, n, sizes) {
   const widths = stillWidths(p.id);
-  return `<li class="wall-tile wall-${n + 1}"><button type="button" class="wall-play duo" data-video="${p.id}" data-title="${escape(p.artist + ' - ' + p.title)}" ><img src="/assets/credit-${p.id}-640.webp" srcset="${widths.map(w => `/assets/credit-${p.id}-${w}.webp ${w}w`).join(', ')}" sizes="${sizes}" width="1280" height="720" alt="" loading="lazy" decoding="async"><span class="wall-caption"><span class="visually-hidden">Play video: </span><span class="wall-artist">${escape(p.artist)}</span><span class="visually-hidden">, </span><span class="wall-title">${escape(p.title)}</span></span></button></li>`;
+  return `<li class="wall-tile wall-${n + 1}"><button type="button" class="wall-play duo" data-video="${p.id}" data-title="${escape(p.artist + ' - ' + p.title)}" ><img src="/assets/credit-${p.id}-640.webp" srcset="${widths.map(w => `/assets/credit-${p.id}-${w}.webp ${w}w`).join(', ')}" sizes="${sizes}" width="1280" height="720" alt="" loading="lazy" decoding="async"><span class="wall-cue" aria-hidden="true">${icon('play')}Play</span><span class="wall-caption"><span class="visually-hidden">Play video: </span><span class="wall-artist">${escape(p.artist)}</span><span class="visually-hidden">, </span><span class="wall-title">${escape(p.title)}</span></span></button></li>`;
 }
 
 export function coverWall(items = selectedWork) {
   const tile = (p, n) => wallTile(p, n, n === 0 ? '(max-width: 759px) calc(100vw - 48px), 58vw' : '(max-width: 759px) calc(100vw - 48px), 40vw');
-  return `<section class="wall-section" aria-labelledby="wall-heading"><div class="container"><div class="wall-head"><p class="wall-number" aria-hidden="true">250+</p><div class="wall-copy"><h2 id="wall-heading">Made in this room.</h2><p>250+ artists through the room. These are a few.</p></div>${link('/projects/', 'All credits')}</div><ul class="wall" role="list">${wallOrder.map((i, n) => tile(items[i], n)).join('')}</ul><p class="credits-note">Official videos via YouTube. Explicit content.</p></div></section>`;
+  return `<section class="wall-section" aria-labelledby="wall-heading"><div class="container"><div class="wall-head"><p class="wall-number" aria-hidden="true">250+</p><div class="wall-copy"><h2 id="wall-heading">Made in this room.</h2><p>250+ artists through the room. These are a few.</p></div>${link('/projects/', 'All credits')}</div><ul class="wall" role="list">${items.map(tile).join('')}</ul><p class="credits-note">Official videos via YouTube. Explicit content.</p></div></section>`;
 }
 
 export function videoDialog() {
@@ -187,5 +186,5 @@ export function layout(page) {
     `<meta name="twitter:image:alt" content="${escape(ogAlt)}">`,
   ].join('');
   const schema = noindex ? '' : `<script type="application/ld+json">${schemaGraph(page)}</script>`;
-  return `<!doctype html><html lang="en" class="scheme-only-dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${meta}<link rel="preload" href="/assets/Archivo.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/JetBrainsMono.woff2" as="font" type="font/woff2" crossorigin><script>try{if(localStorage.getItem('scs-motion')==='reduced')document.documentElement.dataset.motion='reduced'}catch{}</script><link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/motion.css"><script src="/assets/motion.js" defer></script><script src="/assets/app.js" defer></script>${hasAB ? '<script src="/assets/ab-player.js" defer></script>' : ''}<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>${schema}</head><body id="top" class="${bodyClass}">${header(path)}<main id="main" tabindex="-1">${content}</main>${footer(path)}${videoDialog()}</body></html>`;
+  return `<!doctype html><html lang="en" class="scheme-only-dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${meta}<link rel="preload" href="/assets/Archivo.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/JetBrainsMono.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/motion.css"><script src="/assets/motion.js" defer></script><script src="/assets/app.js" defer></script>${hasAB ? '<script src="/assets/ab-player.js" defer></script>' : ''}<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>${schema}</head><body id="top" class="${bodyClass}">${header(path)}<main id="main" tabindex="-1">${content}</main>${footer(path)}${videoDialog()}</body></html>`;
 }

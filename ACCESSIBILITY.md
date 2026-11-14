@@ -4,11 +4,10 @@ Updated November 13, 2026 (cinematic motion layer). This records implementation 
 
 ## Motion policy
 
-The site is deliberately cinematic, and every effect is gated by the same three conditions:
+The site is deliberately cinematic, and every effect is gated by the same two conditions:
 
 1. **The device allows motion.** A `prefers-reduced-motion: reduce` setting always wins.
-2. **The visitor hasn't chosen "Reduce motion"** in the header control. An inline head script applies a saved choice before first paint, so a returning visitor never sees even the first frame of a load animation.
-3. **Support.** Scroll-scrubbed effects also need `animation-timeline` support. Pinned effects also need a viewport at least 600px tall, so landscape phones and high browser zoom get the static layout.
+2. **Support.** Scroll-scrubbed effects also need `animation-timeline` support. Pinned effects also need a viewport at least 600px tall, so landscape phones and high browser zoom get the static layout.
 
 Without these conditions, the page is the complete static layout: hero, credits list, service panels, a gallery grid and the quote. Nothing is hidden or reordered.
 
@@ -19,6 +18,7 @@ Without these conditions, the page is the complete static layout: hero, credits 
 | Made in this room | Credit stills sit in the room's red duotone and ease to true colour, with a slight push-in, on hover/focus | Interaction |
 | The room | Photos ease from duotone to colour on hover/focus; each photo morphs into a lightbox dialog and back | Interaction |
 | Inner pages | Headline mask-up and hero photo power-up on load | One-shot load |
+| Home reviews | Seven client quotes rotate once (a meter times each quote), then stop | One pass, finite |
 | Site-wide | Cross-page wipe with hover-intent prerendering; text-link rules fill like a level meter; buttons drop 1px on press | Interaction |
 
 There is **no scroll-jacking anywhere**: no sticky or pinned sections and no scroll-length padding. The owner asked for this (Nov 13, 2026).
@@ -60,6 +60,16 @@ There is **no scroll-jacking anywhere**: no sticky or pinned sections and no scr
   - The playhead moves only during user-started playback.
   - The first clip prefetches when the player scrolls into view, except when the browser's Data Saver is on.
 
+**Client reviews (home).**
+
+- Without JS, all seven quotes are stacked and readable.
+- With JS, they rotate **once** through all seven and stop. No infinite loop. Each quote stays up 6 to 14 s, scaled to its length.
+- The rule above the controls fills like a meter while a quote is up. It is the timer: hover, keyboard focus in the section, the section being off screen, or a background tab all hold it.
+- Pause/Play, Previous and Next are native buttons. Previous or Next stops rotation for good.
+- Under reduced motion there is no auto-advance and no Pause button; Previous/Next swap quotes instantly.
+- Hidden quotes are `inert`. The quote area is `aria-live="off"` while rotating and `polite` after a Previous/Next press, so only user-requested changes are announced.
+- All quotes share one grid cell, so the section height never changes between quotes.
+
 **Room lightbox.**
 
 - Native `<dialog>`.
@@ -86,9 +96,9 @@ The cover image that follows the pointer is decorative (`alt=""`, `aria-hidden`,
 
 ## User control
 
-The header's keyboard-operable Motion disclosure offers “Follow my device” and “Reduce motion.” A device reduced-motion request always takes priority. The browser stores only the `scs-motion` preference, never project details. Blocked storage still permits a page-local choice.
+There's no in-page motion control. The site follows the device's `prefers-reduced-motion` setting, which visitors control from their operating system or browser. The site stores nothing about motion.
 
-Reduction cancels active Web Animations, removes every CSS load and scroll effect (pinned sections return to normal flow), turns cross-page transitions into instant swaps, hides the credits cover, and suppresses transitions, transform feedback and smooth scrolling. Device changes and changes from another tab are handled. The base page remains readable if enhancement fails.
+Reduction cancels active Web Animations, removes every CSS load and scroll effect (pinned sections return to normal flow), turns cross-page transitions into instant swaps, hides the credits cover, and suppresses transitions, transform feedback and smooth scrolling. A device setting changed mid-visit takes effect immediately. The base page remains readable if enhancement fails.
 
 This follows the intent of [WCAG Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) and [Pause, Stop, Hide](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html), with device handling described by [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion). These references do not establish whole-site conformance.
 
@@ -103,7 +113,7 @@ This follows the intent of [WCAG Animation from Interactions](https://www.w3.org
 
 ## Keyboard and visual behavior
 
-The skip link lands on a focusable main landmark. Controls have visible focus; native radios, details, and dialog semantics are retained. Motion settings and the mobile menu do not stay open over one another. Escape closes them and restores focus.
+The skip link lands on a focusable main landmark. Controls have visible focus; native radios, details, and dialog semantics are retained. Escape closes the mobile menu and restores focus.
 
 YouTube loads only after activation. Explicit first/last Tab wrapping supplements the native video dialog while preserving iframe access. Closing removes the player and returns focus to its trigger. Artist video captions/settings remain external dependencies.
 
@@ -111,22 +121,17 @@ Opaque video labels and the opaque hero label keep small text off the photograph
 
 ## Verification
 
-`npm run check` validates static pages/links, heading/metadata basics, phone consistency, syntax, dash-free visible copy, and that every animation declaration is inside the reduced-motion gate. It runs fourteen motion-controller tests:
+`npm run check` validates static pages/links, heading/metadata basics, phone consistency, syntax, dash-free visible copy, and that every animation declaration is inside the reduced-motion gate. It runs four motion-controller tests:
 
 - Initial device reduction
 - Live cancellation
-- Saved reduction
-- Device precedence
-- Blocked storage
 - Focus cancellation
 - Background tabs
-- Cross-tab updates
-- Five tests for the credits cover: mouse-only, decorative, never built for coarse pointers, ignores touch, hides on reduction and on keyboard use
 
 Browser verification:
 
 - Nine pages at 1280, 768, 390, and 320 CSS pixels, in full and reduced motion: 72 checks, with actual width verified and no horizontal overflow or completed broken images detected.
-- Keyboard motion selection, saved preference across reloads, Escape focus restoration, 320-pixel panel containment, and mobile-menu/settings exclusivity.
+- Escape focus restoration for the mobile menu.
 - FAQ rapid toggling and live reduction without a stuck height or animation class.
 - Skip navigation, modal Tab wrapping, Escape, player removal, and trigger-focus restoration.
 - Empty/invalid form errors, keyboard links to fields, optional invalid URL handling, review focus, and retained inputs. No real text was sent.

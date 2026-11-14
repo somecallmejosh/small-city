@@ -1,15 +1,11 @@
 /* Finite, progressive enhancement. HTML is readable without this file. */
 (() => {
   const device = matchMedia('(prefers-reduced-motion: reduce)');
-  const root = document.documentElement;
-  const storageKey = 'scs-motion';
-  let preference = 'system';
-  try { if (localStorage.getItem(storageKey) === 'reduced') preference = 'reduced'; } catch { /* Storage may be unavailable. */ }
   const running = new Set();
   const easing = 'ease-out';
 
   const motion = {
-    get reduced() { return device.matches || preference === 'reduced'; },
+    get reduced() { return device.matches; },
     animate(element, frames, options = {}) {
       if (!element || motion.reduced || !element.animate) return null;
       const animation = element.animate(frames, { duration: 120, easing, ...options, iterations: 1, fill: 'backwards' });
@@ -28,45 +24,9 @@
   };
   window.SCSMotion = motion;
 
-  const settings = document.querySelector('.motion-settings');
-  const apply = () => {
-    root.dataset.motion = motion.reduced ? 'reduced' : 'full';
-    if (motion.reduced) {
-      for (const animation of [...running]) animation.cancel();
-    }
-    settings?.querySelectorAll('[name="motion-preference"]').forEach(input => { input.checked = input.value === preference; });
-    const label = settings?.querySelector('.motion-current');
-    if (label) label.textContent = motion.reduced ? 'Reduced' : 'On';
-  };
-  apply();
-  device.addEventListener('change', apply);
-  window.addEventListener('storage', e => {
-    if (e.key !== storageKey && e.key !== null) return;
-    preference = e.newValue === 'reduced' ? 'reduced' : 'system';
-    apply();
+  device.addEventListener('change', () => {
+    if (motion.reduced) for (const animation of [...running]) animation.cancel();
   });
-  if (settings) {
-    settings.hidden = false;
-    settings.addEventListener('toggle', () => {
-      if (!settings.open) return;
-      const menu = document.querySelector('#mobile-nav');
-      const toggle = document.querySelector('.menu-toggle');
-      if (menu && toggle) { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); }
-    });
-    settings.addEventListener('focusout', event => {
-      if (event.relatedTarget && !settings.contains(event.relatedTarget)) settings.open = false;
-    });
-    settings.querySelectorAll('[name="motion-preference"]').forEach(input => input.addEventListener('change', () => {
-      if (!input.checked) return;
-      preference = input.value === 'reduced' ? 'reduced' : 'system';
-      try { localStorage.setItem(storageKey, preference); } catch { /* Preference still applies to this page. */ }
-      apply();
-    }));
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && settings.open) { settings.open = false; settings.querySelector('summary').focus(); }
-    });
-    document.addEventListener('click', e => { if (settings.open && !settings.contains(e.target)) settings.open = false; });
-  }
 
   // Load and scroll effects are pure CSS in motion.css, behind the same reduced-motion gate.
   document.addEventListener('focusin', e => {

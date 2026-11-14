@@ -1,23 +1,8 @@
 /* Premium interactions with an explicit, site-wide static equivalent. */
 :root{--ease-out:ease-out;--motion-quick:120ms;--motion-standard:120ms}
 html{scroll-behavior:auto}
-html[data-motion=full]{scroll-behavior:smooth}
 main:focus{outline:none}
 .header-tools{display:flex;align-items:center;gap:22px;min-width:0}
-.motion-settings{position:relative;font-size:12px;flex-shrink:0}
-.motion-settings summary{display:flex;align-items:center;gap:9px;min-height:48px;cursor:pointer;list-style:none;white-space:nowrap;color:var(--text-2)}
-.motion-settings summary::-webkit-details-marker{display:none}
-.motion-current{font:9px var(--font-mono);color:var(--meta);border:1px solid var(--rule);padding:4px 5px;text-transform:uppercase;letter-spacing:.04em}
-.motion-glyph{display:flex;align-items:center;gap:3px;height:18px}
-.motion-glyph i{width:2px;height:6px;background:currentColor;display:block}
-.motion-glyph i:nth-child(2){height:14px}
-.motion-glyph i:nth-child(3){height:10px}
-.motion-panel{position:absolute;z-index:40;right:0;top:calc(100% + 10px);width:285px;padding:22px;background:var(--surface);border:1px solid var(--control)}
-.motion-panel fieldset{margin:0;padding:0;border:0}
-.motion-panel legend{font-size:15px;font-weight:500;margin-bottom:14px}
-.motion-panel label{display:flex;align-items:center;gap:12px;min-height:48px;cursor:pointer;font-size:14px}
-.motion-panel input{width:18px;height:18px;margin:0;accent-color:var(--rec)}
-.motion-panel p{font-size:12px;color:var(--text-2);line-height:1.6;margin:14px 0 0}
 .form-progress{padding:0;list-style:none}
 .form-progress li[aria-current=step]{color:var(--text)}
 .form-progress li:not([aria-current]){color:var(--meta)}
@@ -33,7 +18,6 @@ main:focus{outline:none}
 .faq-plus{transform-origin:center}
 .select-wrap select{min-height:48px}
 .button,.header-cta,.text-link{position:relative}
-.motion-settings[open] .motion-panel{outline:1px solid var(--rule)}
 .field-hint,.form-note,.privacy-note{font-size:13px;line-height:1.7}
 .form-field input,.form-field textarea,.form-field select{font-size:16px}
 .form-field:focus-within label{color:var(--text)}
@@ -62,32 +46,32 @@ main:focus{outline:none}
 .footer-links a{min-height:30px;display:inline-flex;align-items:center}
 .contact-mini>a{min-height:48px}
 
-html[data-motion=full] .menu-lines{position:relative;height:14px;border:0}
-html[data-motion=full] .menu-lines::before,html[data-motion=full] .menu-lines::after{content:'';position:absolute;left:0;right:0;height:1px;background:currentColor;top:1px;transition:transform 120ms ease-out}
-html[data-motion=full] .menu-lines::after{top:12px}
-html[data-motion=full] [aria-expanded=true] .menu-lines::before{transform:translateY(5.5px) rotate(45deg)}
-html[data-motion=full] [aria-expanded=true] .menu-lines::after{transform:translateY(-5.5px) rotate(-45deg)}
-
-html[data-motion=reduced]{scroll-behavior:auto}
-html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion=reduced] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-@media(max-width:1199px){.header-tools{gap:16px}.desktop-nav{gap:16px}.header-inner{gap:24px}.motion-settings summary{font-size:11px}.motion-current{display:none}}
-@media(max-width:999px){.header-tools{margin-left:auto}.motion-settings .motion-current{display:inline}.header-inner{gap:25px}}
-@media(max-width:759px){
-  .header-inner{gap:15px}.brand{gap:9px;font-size:11px}.brand img{width:43px;height:30px}.motion-settings summary{font-size:12px;gap:6px}.motion-current{display:none!important}.menu-toggle{gap:9px;font-size:13px}.menu-lines{width:20px}.motion-panel{right:-65px;width:min(285px,calc(100vw - 40px));padding:20px}.motion-panel label{font-size:16px}.motion-panel p{font-size:14px}.hero-description{font-size:18px}.service-reassurance{font-size:16px;gap:12px;max-width:40ch}.field-hint,.form-note,.privacy-note{font-size:14px}.form-progress{font-size:12px;gap:10px}.optional-details summary{font-size:16px;min-height:64px}.optional-details summary span{font-size:12px}.optional-details summary{flex-wrap:wrap;gap:5px;padding-block:15px}.form-field textarea{min-height:140px}.footer-links a{min-height:44px}.footer-bottom a{min-height:44px;display:inline-flex;align-items:center}.service-options{grid-template-columns:1fr}.service-options small{font-size:14px}.service-options label{min-height:80px}.form-panel>form>.eyebrow{margin-bottom:20px}.booking-intro h1{font-size:62px}.quote-layout figcaption a{min-height:44px;display:inline-flex;align-items:center}.video-dialog-heading h2{line-height:1.5}.footer-grid .small{font-size:14px}
+@media(prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+  .menu-lines{position:relative;height:14px;border:0}
+  .menu-lines::before,.menu-lines::after{content:'';position:absolute;left:0;right:0;height:1px;background:currentColor;top:1px;transition:transform 120ms ease-out}
+  .menu-lines::after{top:12px}
+  [aria-expanded=true] .menu-lines::before{transform:translateY(5.5px) rotate(45deg)}
+  [aria-expanded=true] .menu-lines::after{transform:translateY(-5.5px) rotate(-45deg)}
 }
-@media(max-width:374px){.header-inner{gap:10px}.motion-settings summary{font-size:11px}.motion-glyph{display:none}.brand{font-size:10px}.brand img{width:35px;height:27px}.menu-toggle{font-size:12px}.hero-actions{gap:10px}}
+
+@media(max-width:1199px){.header-tools{gap:16px}.desktop-nav{gap:16px}.header-inner{gap:24px}}
+@media(max-width:999px){.header-tools{margin-left:auto}.header-inner{gap:25px}}
+@media(max-width:759px){
+  .header-inner{gap:15px}.brand{gap:9px;font-size:11px}.brand img{width:43px;height:30px}.menu-toggle{gap:9px;font-size:13px}.menu-lines{width:20px}.hero-description{font-size:18px}.service-reassurance{font-size:16px;gap:12px;max-width:40ch}.field-hint,.form-note,.privacy-note{font-size:14px}.form-progress{font-size:12px;gap:10px}.optional-details summary{font-size:16px;min-height:64px}.optional-details summary span{font-size:12px}.optional-details summary{flex-wrap:wrap;gap:5px;padding-block:15px}.form-field textarea{min-height:140px}.footer-links a{min-height:44px}.footer-bottom a{min-height:44px;display:inline-flex;align-items:center}.service-options{grid-template-columns:1fr}.service-options small{font-size:14px}.service-options label{min-height:80px}.form-panel>form>.eyebrow{margin-bottom:20px}.booking-intro h1{font-size:62px}.quote-layout figcaption a{min-height:44px;display:inline-flex;align-items:center}.video-dialog-heading h2{line-height:1.5}.footer-grid .small{font-size:14px}
+}
+@media(max-width:374px){.header-inner{gap:10px}.brand{font-size:10px}.brand img{width:35px;height:27px}.menu-toggle{font-size:12px}.hero-actions{gap:10px}}
 @media(prefers-reduced-motion:reduce){
-  html,html[data-motion=full]{scroll-behavior:auto}
+  html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
-@media(forced-colors:active){.button,.header-cta,.motion-panel,.form-panel,.service-options label{border:1px solid ButtonText}.service-options label:has(:checked){outline:2px solid Highlight}.motion-glyph i{background:ButtonText}}
+@media(forced-colors:active){.button,.header-cta,.form-panel,.service-options label{border:1px solid ButtonText}.service-options label:has(:checked){outline:2px solid Highlight}}
 
 /* ---------------------------------------------------------------------------------------------
    Motion layer: the vocal chain.
    Animation is used only where it demonstrates the work: the room powering up behind a REC tally,
    a raw take processed stage by stage, a photo lifted off the grid. Nothing generic.
-   Gate 1: the device allows motion.  Gate 2: the visitor has not chosen "Reduce motion"
-   (applied before first paint by the inline head script). Scroll-scrubbed effects also need
+   Gate: the device allows motion (prefers-reduced-motion:no-preference). Scroll-scrubbed effects also need
    animation-timeline support; the single pinned piece also needs a viewport at least 600px tall.
    Only transform, opacity, color and filter are animated (plus registered custom properties that
    feed transform/opacity/color). Load animations fill backwards only; scrubbed ones fill both.
@@ -110,12 +94,10 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
 @keyframes ch-ess{from{--ess:0}to{--ess:1}}
 @keyframes ch-print{from{--print:0}to{--print:1}}
 @keyframes ch-grid{0%{--grid:0}20%{--grid:1}100%{--grid:.35}}
-@keyframes ch-step{0%{color:var(--meta)}12%,88%{color:var(--text)}100%{color:var(--meta)}}
+/* Passes light up and stay lit, so the row reads as progress; the red mark rides the active pass only
+   and goes out after Print, leaving the whole chain lit with nothing singled out. */
+@keyframes ch-step{0%{color:var(--meta)}12%,100%{color:var(--text)}}
 @keyframes ch-step-mark{0%{opacity:0}12%,88%{opacity:1}100%{opacity:0}}
-@keyframes ch-step-first{0%,88%{color:var(--text)}100%{color:var(--meta)}}
-@keyframes ch-step-first-mark{0%,88%{opacity:1}100%{opacity:0}}
-@keyframes ch-step-last{0%{color:var(--meta)}12%,100%{color:var(--text)}}
-@keyframes ch-step-last-mark{0%{opacity:0}12%,100%{opacity:1}}
 @keyframes route-draw{from{clip-path:inset(-2px 100% -2px 0)}to{clip-path:inset(-2px -2px -2px 0)}}
 @keyframes clock-fill{from{transform:scaleX(0)}}
 @keyframes seq-hit{0%,100%{background-color:var(--cyan);border-color:var(--cyan)}2%,70%{background-color:var(--red);border-color:var(--red)}}
@@ -131,14 +113,14 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
   /* Lightbox: the photo lifts off the grid into the dialog (app.js names it on open). */
   ::view-transition-group(room-photo){animation-duration:520ms;animation-timing-function:var(--ease-cine)}
 
-  html:not([data-motion=reduced]){
+  html{
     /* Load: the REC tally comes on, then the room powers up, then the line rises. Ends by 1.8s. */
     .rec-tally .rec-dot{animation:tally-on 420ms steps(1,end) 120ms backwards}
     .cine-media{animation:cine-lights 1.4s var(--ease-cine) .4s backwards}
     /* The letters switch on after the tally: the room glows through them. */
     .cine-title{animation:lights-on 1.3s var(--ease-cine) .5s backwards}
-    .cine-kicker,.cine-foot{animation:cine-wipe-x .9s var(--ease-cine) .95s backwards}
-    .cine-foot:focus-within{animation:none}
+    .cine-kicker,.cine-foot,.hero-rates{animation:cine-wipe-x .9s var(--ease-cine) .95s backwards}
+    .cine-foot:focus-within,.hero-rates:focus-within{animation:none}
     .page-title{animation:cine-mask-up .9s var(--ease-cine) .08s backwards}
     .svc-hero-photo>img,.bio-poster .poster>img,.booking-photo>img{animation:cine-lights 1.4s var(--ease-cine) backwards}
     .flatline{animation:cine-wipe-x 1.2s var(--ease-cine) .3s backwards}
@@ -173,15 +155,30 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
       .chain-raw{animation:ch-comp linear both,ch-pitch linear both,ch-time linear both,ch-dyn linear both,ch-ess linear both,ch-print linear both,ch-grid linear both;animation-timeline:--chain;animation-range:cover 15.9% cover 20.9%,cover 22.0% cover 27.0%,cover 28.1% cover 33.1%,cover 33.9% cover 39.0%,cover 40.0% cover 45.1%,cover 46.1% cover 50.7%,cover 26.8% cover 52.0%}
       .chain-steps li{animation:ch-step linear both;animation-timeline:--chain}
       .chain-steps li::before{animation:ch-step-mark linear both;animation-timeline:--chain}
-      .chain-steps li:nth-child(1){animation-name:ch-step-first;animation-range:cover 10.0% cover 15.9%}
-      .chain-steps li:nth-child(1)::before{animation-name:ch-step-first-mark;animation-range:cover 10.0% cover 15.9%}
+      .chain-steps li:nth-child(1),.chain-steps li:nth-child(1)::before{animation-range:cover 10.0% cover 15.9%}
       .chain-steps li:nth-child(2),.chain-steps li:nth-child(2)::before{animation-range:cover 15.9% cover 22.0%}
       .chain-steps li:nth-child(3),.chain-steps li:nth-child(3)::before{animation-range:cover 22.0% cover 28.1%}
       .chain-steps li:nth-child(4),.chain-steps li:nth-child(4)::before{animation-range:cover 28.1% cover 33.9%}
       .chain-steps li:nth-child(5),.chain-steps li:nth-child(5)::before{animation-range:cover 33.9% cover 40.0%}
       .chain-steps li:nth-child(6),.chain-steps li:nth-child(6)::before{animation-range:cover 40.0% cover 46.1%}
-      .chain-steps li:nth-child(7){animation-name:ch-step-last;animation-range:cover 46.1% cover 52.0%}
-      .chain-steps li:nth-child(7)::before{animation-name:ch-step-last-mark;animation-range:cover 46.1% cover 52.0%}
+      .chain-steps li:nth-child(7),.chain-steps li:nth-child(7)::before{animation-range:cover 46.1% cover 52.0%}
+      /* Desktop: the passes sit in one row near the foot of a tall section, so section-relative ranges
+         finished before the row was on screen. Here the row's own view timeline drives both the row and
+         the heading: the chain starts once the row is fully in view and ends with it around the
+         upper third. Guarded so a browser without timeline-scope keeps the section ranges above. */
+      @media(min-width:1000px){@supports (timeline-scope:--a){
+        .chain-section{timeline-scope:--passes}
+        .chain-steps{view-timeline:--passes block}
+        .chain-raw,.chain-steps li,.chain-steps li::before{animation-timeline:--passes}
+        .chain-raw{animation-range:contain 16.6% contain 25.1%,contain 25.1% contain 33.7%,contain 33.7% contain 42.3%,contain 42.3% contain 50.9%,contain 50.9% contain 59.4%,contain 59.4% contain 68%,contain 25.1% contain 68%}
+        .chain-steps li:nth-child(1),.chain-steps li:nth-child(1)::before{animation-range:contain 8% contain 16.6%}
+        .chain-steps li:nth-child(2),.chain-steps li:nth-child(2)::before{animation-range:contain 16.6% contain 25.1%}
+        .chain-steps li:nth-child(3),.chain-steps li:nth-child(3)::before{animation-range:contain 25.1% contain 33.7%}
+        .chain-steps li:nth-child(4),.chain-steps li:nth-child(4)::before{animation-range:contain 33.7% contain 42.3%}
+        .chain-steps li:nth-child(5),.chain-steps li:nth-child(5)::before{animation-range:contain 42.3% contain 50.9%}
+        .chain-steps li:nth-child(6),.chain-steps li:nth-child(6)::before{animation-range:contain 50.9% contain 59.4%}
+        .chain-steps li:nth-child(7),.chain-steps li:nth-child(7)::before{animation-range:contain 59.4% contain 68%}
+      }}
 
       /* Inner pages: each set piece plays once across its natural passage. No pins, no added length;
          the static layer is the finished state, so a stalled timeline still reads correctly. */
@@ -216,5 +213,12 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
     }
   }
 }
-html[data-motion=reduced]::view-transition-group(*),html[data-motion=reduced]::view-transition-old(*),html[data-motion=reduced]::view-transition-new(*){animation:none!important}
 @media(prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+
+/* Review meter: the dwell timer for each quote. app.js advances on its animationend, so pausing the
+   meter pauses the rotation. No meter animation under reduced motion means no auto-advance. */
+@media (prefers-reduced-motion:no-preference){
+  .reviews-ready.is-playing .reviews-meter>span{animation:review-meter var(--dwell,8s) linear both}
+  .reviews-ready.is-held .reviews-meter>span,.reviews-ready:hover .reviews-meter>span,.reviews-ready:focus-within .reviews-meter>span{animation-play-state:paused}
+}
+@keyframes review-meter{from{transform:scaleX(0)}to{transform:scaleX(1)}}

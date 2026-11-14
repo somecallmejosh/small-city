@@ -17,7 +17,7 @@ The local server prints `http://localhost:8800`. Rebuild and refresh after sourc
 npm run check
 ```
 
-Checks generated pages, local links and assets, local anchor destinations, heading/metadata basics, phone consistency, script syntax, dash-free visible copy, and that every animation is inside the reduced-motion gate. It also runs fourteen motion-controller tests and eight A/B player tests: sync start, gain-only switching, crossfade length, RMS level matching, pause/resume, seek clamping, and waveform peak accuracy (mono and stereo). Browser QA results and screenshots are in the ignored `qa/` directory. See `ACCESSIBILITY.md` for motion policy, keyboard behavior, audit results, and validation limits.
+Checks generated pages, local links and assets, no phone number hard-coded in `src/app.js`, service-page booking links carrying `?service=`, the booking form defaulting to "Not sure yet", local anchor destinations, heading/metadata basics, phone consistency, script syntax, dash-free visible copy, and that every animation is inside the reduced-motion gate. It also runs four motion-controller tests and eight A/B player tests: sync start, gain-only switching, crossfade length, RMS level matching, pause/resume, seek clamping, and waveform peak accuracy (mono and stereo). Browser QA results and screenshots are in the ignored `qa/` directory. See `ACCESSIBILITY.md` for motion policy, keyboard behavior, audit results, and validation limits.
 
 ## Source
 
@@ -25,9 +25,9 @@ Checks generated pages, local links and assets, local anchor destinations, headi
 - `src/pages.mjs`: page copy and structures.
 - `src/projects.json`: existing released-project archive, extracted from the live site.
 - `src/styles.css`: responsive visual system. The light system is the room's own lighting: `--red` (dominant) and `--cyan` (screens/LEDs), duotone photos (`.duo`), static film grain and light spill.
-- `src/app.js`: navigation, click-to-load videos, project-message preparation, internship SMS prefill, and the room lightbox (shared-element View Transition).
-- `src/motion.js`: finite animations, live cancellation, saved/device motion preferences, and the credits cover that follows the pointer.
-- `src/motion.css`: motion settings, interactions, and the vocal-chain layer, all behind one reduced-motion gate. It covers the REC-tally load, the scroll-processed raw take (the only pinned section, driven by registered `@property` values), the level-meter link rule, and cross-page View Transitions. `src/styles.css` holds the static layout every effect falls back to.
+- `src/app.js`: navigation, click-to-load videos, project-message preparation, internship SMS prefill, the room lightbox (shared-element View Transition), and the text-link fallback: on desktops without a texting app (not a phone or Mac), `sms:` links copy the number and say so. The booking form reads the phone from `data-tel`/`data-phone`; keep the number in `src/components.mjs` only.
+- `src/motion.js`: finite animations, live cancellation, device reduced-motion handling, and the credits cover that follows the pointer.
+- `src/motion.css`: interactions, and the vocal-chain layer, all behind one reduced-motion gate. It covers the REC-tally load, the scroll-processed raw take (the only pinned section, driven by registered `@property` values), the level-meter link rule, and cross-page View Transitions. `src/styles.css` holds the static layout every effect falls back to.
 - `src/ab-player.js`: the "Hear the difference" A/B player. Raw and mixed clips play in sync on separate gains, are level-matched by RMS, and switch with a 15 ms crossfade. It draws a waveform from the decoded clips, which morphs between raw and mixed and doubles as the seek control. It is only loaded on pages that render the player.
 - `src/studio.json`: `abTracks` lists clip pairs `{ artist, title, raw, mixed }` with files in `public/audio/`. While it's empty, the player section is not rendered and `npm run check` prints a note. Use WAV or high-bitrate AAC, 30–90 s, with the raw take and the mix cut from the same start point, and only with the artist's permission to share the raw take.
 - `public/assets/`: local images, fonts, and official Heroicons.

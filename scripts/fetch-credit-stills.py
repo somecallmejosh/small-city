@@ -12,7 +12,7 @@ import urllib.request
 from pathlib import Path
 from PIL import Image
 
-CREDITS = ['_Qhqx8Oi_4I', 'jCqH_mUgHJM', 'sfOsi7lr6bQ', '926fxNbTWdw', 't6etciQhR9U', 'MVvi3U6nh_0']
+CREDITS = ['_Qhqx8Oi_4I', 'jCqH_mUgHJM', 'sfOsi7lr6bQ', '926fxNbTWdw', 'MVvi3U6nh_0']
 OUT = Path(__file__).resolve().parent.parent / 'public' / 'assets'
 
 

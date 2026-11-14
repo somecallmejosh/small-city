@@ -40,7 +40,7 @@ address{font-style:normal;line-height:1.7}
 .text-link:hover{text-decoration:underline;text-underline-offset:5px}
 
 .surface-section{background:var(--surface);border-block:1px solid var(--rule)}
-.site-header{border-bottom:1px solid var(--rule);position:relative;z-index:20;background:var(--canvas)}
+.site-header{border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:20;background:var(--canvas)}
 .header-inner{display:flex;align-items:center;justify-content:space-between;min-height:104px;gap:36px}
 .brand{display:inline-flex;align-items:center;gap:14px;font-size:13px;line-height:1.2;letter-spacing:.015em;font-weight:600;flex-shrink:0}
 .brand img{width:54px;height:37px;object-fit:contain;flex-shrink:0}
@@ -158,7 +158,7 @@ address{font-style:normal;line-height:1.7}
 .video-dialog>p a{text-decoration:underline;text-underline-offset:4px}
 
 @media(max-width:1199px){.container{padding-inline:40px}.header-inner{gap:24px}.desktop-nav{gap:20px}.hero-description{font-size:15px}.hero-actions{gap:15px}.hero-actions>.text-link{font-size:12px}.form-panel{padding:28px}.service-options{grid-template-columns:1fr}.service-options small{grid-column:2}.service-options span{font-size:13px}.service-options small{font-size:11px}.booking-intro h1{font-size:72px}.quote-layout{grid-template-columns:1fr 2fr}}
-@media(max-width:999px){.desktop-nav,.header-cta{display:none}.header-inner{min-height:86px}.menu-toggle{display:flex;align-items:center;gap:16px;background:transparent;border:0;font-size:14px;padding:10px 0;min-height:48px}.menu-lines{width:23px;height:14px;border-top:1px solid currentColor;border-bottom:1px solid currentColor}.menu-toggle[aria-expanded=true] .menu-lines{height:1px;border-bottom:0}.hero-actions{align-items:flex-start;flex-direction:column;gap:8px}.hero-description{font-size:14px}.process-grid{gap:24px}.process-grid h3{font-size:22px}.quote-layout{grid-template-columns:1fr}.quote-layout>.eyebrow{margin:0}.quote-layout blockquote{max-width:40ch}.footer-grid{gap:30px}.booking-grid{gap:32px}.booking-intro h1{font-size:62px}.form-panel{padding:24px}}
+@media(max-width:999px){.desktop-nav{display:none}.header-inner{min-height:86px}.menu-toggle{display:flex;align-items:center;gap:16px;background:transparent;border:0;font-size:14px;padding:10px 0;min-height:48px}.menu-lines{width:23px;height:14px;border-top:1px solid currentColor;border-bottom:1px solid currentColor}.menu-toggle[aria-expanded=true] .menu-lines{height:1px;border-bottom:0}.hero-actions{align-items:flex-start;flex-direction:column;gap:8px}.hero-description{font-size:14px}.process-grid{gap:24px}.process-grid h3{font-size:22px}.quote-layout{grid-template-columns:1fr}.quote-layout>.eyebrow{margin:0}.quote-layout blockquote{max-width:40ch}.footer-grid{gap:30px}.booking-grid{gap:32px}.booking-intro h1{font-size:62px}.form-panel{padding:24px}}
 @media(max-width:759px){:root{--space:32px}.container{padding-inline:24px}h1{font-size:64px}h2{font-size:43px}.eyebrow{font-size:11px}.small{font-size:16px}.brand{font-size:12px}.brand img{width:48px;height:33px}.header-inner{min-height:82px}.hero-description{font-size:17px;max-width:34ch;margin-bottom:28px}.hero-actions{flex-direction:row;align-items:center;gap:16px;flex-wrap:wrap}.hero-actions>.text-link{font-size:14px}.button{min-height:56px;font-size:15px}.text-link{font-size:15px}.services-section,.process-section,.quote-section,.closing-section{padding-block:64px}.process-grid{grid-template-columns:1fr;gap:30px}.step-number{margin-bottom:22px}.process-grid h3{font-size:27px;margin-bottom:14px}.process-grid p{font-size:17px;max-width:40ch}.quote-layout{gap:24px}.quote-layout blockquote{font-size:29px;line-height:1.5}.quote-layout figure{padding-left:12px}.quote-layout figcaption{align-items:flex-start;flex-direction:column;gap:10px;font-size:14px;margin-top:25px}.site-footer{padding-top:38px}.footer-top{align-items:flex-start;flex-direction:column;gap:18px}.footer-top>p{font-size:14px}.footer-grid{grid-template-columns:1fr 1fr;gap:32px;font-size:16px;padding-block:32px}.footer-grid>div:last-child{grid-column:1/-1}.footer-grid .eyebrow{font-size:10px}.footer-grid .small{font-size:13px}.footer-links{gap:13px}.footer-bottom{flex-wrap:wrap;gap:17px;font-size:12px}.footer-bottom p:first-child{width:100%;margin-right:0}.footer-bottom a:last-child{margin-left:auto}.archive-heading{margin-top:50px;flex-direction:column;align-items:flex-start;gap:13px}.archive-heading p{font-size:16px}.playlist-links{gap:16px}.breadcrumb{font-size:12px;padding-bottom:28px;gap:10px}.faq-section,.bio-story{padding-block:60px}.faq-grid{grid-template-columns:1fr;gap:32px}.faq-list summary{font-size:17px;padding-block:22px}.faq-answer{font-size:17px}.booking-section{padding-block:48px 60px}.booking-grid{grid-template-columns:1fr;gap:36px}.booking-intro h1{font-size:64px;margin-bottom:28px}.contact-mini{margin-top:28px;max-width:none}.contact-mini .small{font-size:14px;max-width:38ch;margin-bottom:0}.form-panel{padding:24px 20px}.form-field{gap:11px;margin-bottom:25px}.form-field label,.service-options legend{font-size:16px}.form-field label span,.service-options legend span{font-size:12px}.form-field input,.form-field textarea,.form-field select,#message-text{font-size:16px;padding:14px}.form-field input{height:54px}.service-options{gap:11px}.service-options label{grid-template-columns:20px minmax(0,1fr);padding:16px;gap:8px 12px}.service-options span{font-size:16px}.service-options small{font-size:13px}.service-options input{width:18px;height:18px}.field-hint{font-size:13px}.form-note{font-size:14px}.privacy-note{font-size:13px}.form-panel .eyebrow{font-size:10px}#message-review h2{font-size:36px}#message-review>p:not(.eyebrow){font-size:16px}.contact-photo img{height:360px;object-position:35% center}.video-dialog{padding:16px;width:calc(100vw - 24px)}.video-dialog-heading h2{font-size:18px}.video-dialog>p{font-size:13px}}
 @media(max-width:374px){.container{padding-inline:20px}.hero-actions{align-items:flex-start;flex-direction:column;gap:8px}.footer-grid{grid-template-columns:1fr}.footer-grid>div:last-child{grid-column:auto}.form-panel{padding:20px 15px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
@@ -368,12 +368,18 @@ address{font-style:normal;line-height:1.7}
 .room-item{grid-column:span 3;min-width:0}
 .room-item-1{grid-column:1/-1}
 .room-grid-all .room-item-1{grid-column:span 4}
-.room-grid-all .room-item-2{grid-column:span 2;align-self:end}
+.room-grid-all .room-item-2{grid-column:span 2}
 .room-grid-all .room-item-3,.room-grid-all .room-item-4,.room-grid-all .room-item-5{grid-column:span 2}
 .room-open{display:block;width:100%;padding:0;border:0;background:var(--surface);cursor:zoom-in}
 .room-open img{width:100%;aspect-ratio:4/3;object-fit:cover}
 .room-item-1 .room-open img{aspect-ratio:2/1}
 .room-grid-all .room-item-2 .room-open img{aspect-ratio:3/4}
+/* Bento row: photos and captions share subgrid rows. The portrait sets the photo row's height and the
+   wide photo fills it, so both photos end on the same line even when one caption wraps. */
+@media(min-width:760px){
+  .room-grid-all .room-item-1,.room-grid-all .room-item-2{display:grid;grid-row:span 2;grid-template-rows:subgrid;row-gap:0}
+  .room-grid-all .room-item-1 .room-open img{position:absolute;inset:0;height:100%;aspect-ratio:auto}
+}
 .room-open:focus-visible{outline:2px solid var(--rec);outline-offset:4px}
 .room-cap{display:flex;flex-direction:column;gap:6px;margin:16px 0 0;font-size:16px;color:var(--text-2)}
 .room-cap .eyebrow{margin:0;color:var(--text)}
@@ -463,6 +469,7 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
 .wall-tile{grid-column:span 4;min-width:0}
 .wall-1{grid-column:span 7;grid-row:span 2}
 .wall-2,.wall-3{grid-column:span 5}
+.wall-4,.wall-5{grid-column:span 6}
 .wall-play{display:block;width:100%;height:100%;padding:0;border:0;text-align:left;cursor:pointer}
 .wall-play>img{width:100%;height:100%;aspect-ratio:16/9;object-fit:cover}
 .wall-1 .wall-play>img{aspect-ratio:auto;min-height:100%}
@@ -650,11 +657,12 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
 .faq-list details[open] :is(.faq-plus,.faq-n){color:var(--red-text)}
 .faq-answer{padding-left:48px;font-size:16px;line-height:1.7;color:var(--text-2)}
 
-/* Credits: the selected six hung as one feature plus a grid; the archive as a tracklist. */
+/* Credits: the selected five hung as one feature plus a grid; the archive as a tracklist. */
 .credit-section{padding-block:0 96px;background:var(--canvas)}
-.credit-wall{grid-template-columns:repeat(3,minmax(0,1fr))}
-.credit-wall .wall-tile{grid-column:auto;grid-row:auto}
-.credit-wall .wall-1{grid-column:span 2;grid-row:span 2}
+.credit-wall{grid-template-columns:repeat(6,minmax(0,1fr))}
+.credit-wall .wall-tile{grid-column:span 3;grid-row:auto}
+.credit-wall .wall-1{grid-column:span 4;grid-row:span 2}
+.credit-wall .wall-2,.credit-wall .wall-3{grid-column:span 2}
 .tracklist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
 .track{display:grid;grid-template-columns:48px minmax(0,5fr) minmax(0,6fr) auto;align-items:baseline;gap:24px;padding-block:22px;border-bottom:1px solid var(--rule)}
 .track-n{font:12px/1.5 var(--font-mono);color:var(--meta);font-variant-numeric:tabular-nums}
@@ -668,6 +676,7 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
 
 /* Bio: poster, the 250+ beside his story, internships in the room's light. */
 .bio-poster .poster{min-height:min(88svh,62vw)}
+.bio-poster .poster>img{object-position:72% 18%}
 .bio-poster .poster-copy{padding-block:72px 56px}
 .bio-poster .page-kicker{display:inline-block;background:var(--canvas);color:var(--text);padding:6px 10px;margin-bottom:20px}
 .bio-name{font-size:clamp(72px,13vw,236px)}
@@ -702,8 +711,8 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
 .form-panel .form-progress{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 32px;font:11px/1.6 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
 .form-panel .form-progress li{padding-top:12px;border-top:3px solid var(--rule)}
 .form-panel .form-progress li[aria-current=step]{border-top-color:var(--red)}
-.form-panel .service-options input{appearance:none;width:14px;height:14px;min-width:14px;min-height:14px;border:1px solid var(--text-2);background:transparent;margin:0}
-.form-panel .service-options input:checked{background:var(--red);border-color:var(--red)}
+.form-panel .service-options input{appearance:none;width:14px;height:14px;min-width:14px;min-height:14px;border:1px solid var(--text-2);border-radius:50%;background:transparent;margin:0}
+.form-panel .service-options input:checked{border-color:var(--red);background:radial-gradient(circle,var(--red) 0 42%,transparent 46%)}
 .select-wrap>svg{grid-column:2;grid-row:1;place-self:center;pointer-events:none}
 #message-review h2{margin-bottom:22px}
 
@@ -754,6 +763,7 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
   .rate,.seq-lane,.faq-grid,.bio-grid,.intern-grid,.studio-grid{grid-template-columns:1fr}
   .faq-grid .set-head{padding-bottom:16px}
   .credit-wall{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .credit-wall .wall-tile{grid-column:auto}
   .credit-wall .wall-1{grid-column:1/-1;grid-row:auto}
   .policy li{grid-template-columns:48px minmax(0,1fr)}
   .policy-body{grid-column:2}
@@ -830,3 +840,60 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
 .footer-nav a:hover{color:var(--text)}
 .footer-nav a[aria-current]{color:var(--text);text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:2px;text-underline-offset:8px}
 @media(max-width:759px){.footer-nav{flex-direction:column;gap:0;padding-block:20px}.footer-nav a{font-size:32px}}
+
+/* Client reviews. No JS: a stack. With JS: one cell, so the section never changes height between quotes. */
+.reviews-track{display:grid;gap:56px}
+.reviews-ready .reviews-track{gap:0}
+.reviews-ready .review{grid-area:1/1}
+.reviews-ready .review[inert]{visibility:hidden}
+.reviews-controls{position:relative;display:flex;align-items:center;gap:28px;margin-top:40px;padding-top:8px;border-top:1px solid var(--rule)}
+.reviews-controls[hidden]{display:none}
+.reviews-controls [hidden]{display:none}
+.reviews-count{margin:0 auto 0 0;font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:var(--meta);font-variant-numeric:tabular-nums}
+.reviews-count span{color:var(--text)}
+.reviews-meter{position:absolute;inset:-1px 0 auto;height:1px;overflow:hidden}
+.reviews-meter>span{display:block;height:100%;background:var(--text-2);transform:scaleX(0);transform-origin:left}
+@media(max-width:759px){.reviews-controls{gap:20px;flex-wrap:wrap}}
+/* The two long reviews set the section height for all seven; a smaller size keeps the gap under short ones small. */
+.quote-layout .review-long blockquote{font-size:clamp(22px,2.4vw,36px);line-height:1.35;max-width:44ch}
+@media(max-width:759px){.quote-layout .review-long blockquote{font-size:21px;line-height:1.45}}
+
+/* Usability pass (tasks/heuristics-audit.md). */
+/* Header: sticky at every width; "Book" stays beside Menu on small screens. */
+.header-cta[aria-current=page]{border-color:var(--text)}
+.mobile-nav{max-height:calc(100svh - 68px);overflow-y:auto}
+.mobile-nav .mobile-phone{font-family:var(--font-mono)}
+@media(max-width:999px){.header-tools{margin-left:auto}}
+@media(max-width:759px){.header-inner{min-height:68px}.cta-long{display:none}.header-cta{min-height:44px;padding:8px 14px 8px 12px}}
+
+/* Home: services and rates one glance from the hero. */
+.hero-rates{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:0 32px;font:500 11px/1.5 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+.hero-rates a{display:inline-flex;align-items:center;gap:10px;min-height:44px;color:var(--text-2)}
+.hero-rates-price{color:var(--text)}
+.hero-rates a:is(:hover,:focus-visible) .hero-rates-name{color:var(--text);text-decoration:underline;text-underline-offset:4px}
+@media(max-width:759px){.hero-rates{flex-direction:column;margin-top:12px}.hero-rates a{min-height:36px;padding-block:4px}}
+
+/* Credit wall: a visible play cue (touch screens have no hover). */
+.wall-play{position:relative}
+.wall-cue{position:absolute;top:14px;left:14px;z-index:2;display:inline-flex;align-items:center;gap:8px;padding:7px 12px 7px 9px;background:rgb(11 11 12/.8);color:var(--text);font:500 11px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase}
+.wall-cue .icon{width:14px;height:14px}
+
+/* Booking: form right after the title on small screens; the rail and number follow it. */
+.booking-grid{grid-template-areas:"intro form" "aside form";grid-template-rows:auto 1fr;row-gap:0}
+.booking-intro{grid-area:intro}.form-panel{grid-area:form}.booking-aside{grid-area:aside;min-width:0}
+@media(max-width:759px){.booking-grid{grid-template-areas:"intro" "form" "aside";grid-template-rows:none;row-gap:36px}.booking-aside .rail{margin-top:0}}
+
+/* Room lightbox: position in the set. */
+.room-dialog-heading{display:flex;align-items:baseline;gap:14px;min-width:0}
+.room-count{margin:0;font:12px/1.5 var(--font-mono);letter-spacing:.08em;color:var(--meta)}
+
+/* Footer number: a full-size tap target. */
+.footer-grid a[href^="tel:"]{min-height:44px;display:inline-flex;align-items:center}
+
+/* Text links on desktops without a texting app: the number is copied and this says so. */
+.sms-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:950;width:max-content;max-width:calc(100vw - 32px);margin:0;padding:14px 18px;background:var(--text);color:var(--canvas);font-size:14px;line-height:1.5}
+.sms-toast:empty{padding:0}
+@media(forced-colors:active){.sms-toast:not(:empty),.wall-cue{border:1px solid CanvasText}}
+/* Bio poster: the breadcrumb sits on the photo, so it gets the kicker's chip. */
+.bio-poster .breadcrumb{display:flex;width:max-content;max-width:100%;background:var(--canvas);color:var(--text-2);padding:0 10px;margin-bottom:12px}
+.bio-poster .breadcrumb a{min-height:32px}
