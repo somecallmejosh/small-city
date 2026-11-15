@@ -162,7 +162,7 @@ function reviews() {
   const slides = reviewList
     .map(
       ([text, name, href], i) =>
-        `<figure class="review${text.split(' ').length > 40 ? ' review-long' : ''}" role="group" aria-label="${i + 1} of ${n}"><blockquote${href ? ` cite="${href}"` : ''}><p>${text}</p></blockquote><figcaption><span class="quote-name">${name}</span>${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">Google review${newTab}</a>` : ''}</figcaption></figure>`,
+        `<div class="review${text.split(' ').length > 40 ? ' review-long' : ''}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}"><figure><blockquote${href ? ` cite="${href}"` : ''}><p>${text}</p></blockquote><figcaption><span class="quote-name">${name}</span>${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">Google review${newTab}</a>` : ''}</figcaption></figure></div>`,
     )
     .join('')
   const button = (attr, text) =>

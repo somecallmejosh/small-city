@@ -419,7 +419,7 @@ export function layout(page) {
   const meta = [
     `<title>${escape(fullTitle)}</title>`,
     `<meta name="description" content="${escape(description)}">`,
-    `<meta name="robots" content="index,follow,max-image-preview:large">`,
+    `<meta name="robots" content="${noindex ? 'noindex,follow' : 'index,follow,max-image-preview:large'}">`,
     `<link rel="canonical" href="${url}">`,
     '<meta name="theme-color" content="#0B0B0C">',
     '<link rel="icon" href="/favicon.ico" sizes="48x48">',
