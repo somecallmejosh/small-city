@@ -180,6 +180,9 @@ def main():
         grain = PROFILES[profile]['grain']
         written = [save(graded, OUT / f'{name}-{w}{ext}', w, grain) for w in widths]
         written.append(save(graded, OUT / f'{name}{ext}', base, grain))
+        if ext == '.jpg':
+            # The page shows the WebP; the JPG stays for structured data and social images.
+            written.append(save(graded, OUT / f'{name}.webp', base, grain))
         print(name, ' '.join(f'{p.name}:{p.stat().st_size // 1024}K' for p in written))
 
 

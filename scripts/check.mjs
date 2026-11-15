@@ -96,6 +96,15 @@ for (const [page, key] of [['mixing', 'mixing'], ['recording', 'recording'], ['p
 // The booking form defaults to "Not sure yet" when no service is passed.
 assert.match(await readFile(join(root, 'booking', 'index.html'), 'utf8'), /value="unsure" required checked/, 'Booking form should default to "Not sure yet"');
 
+// Font gate: page text stays inside the preloaded core font subset (scripts/subset-fonts.py CORE),
+// so no page pulls the -ext files. A new character still renders correctly, just with an extra fetch.
+const coreFont = /^[ -~ ©·×‘’“”•…\s]*$/u;
+for (const file of htmlFiles) {
+  const text = (await readFile(file, 'utf8')).replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '').replace(/<[^>]+>/g, '');
+  const extra = [...new Set(text)].filter(c => !coreFont.test(c));
+  if (extra.length) console.warn(`Note: ${file.slice(root.length)} uses ${extra.join(' ')} outside the core font subset, so it loads the -ext font. Add them to CORE in scripts/subset-fonts.py.`);
+}
+
 execFileSync(process.execPath, ['--check', resolve(new URL('../src/app.js', import.meta.url).pathname)]);
 execFileSync(process.execPath, ['--check', resolve(new URL('../src/motion.js', import.meta.url).pathname)]);
 execFileSync(process.execPath, ['--check', resolve(new URL('../src/ab-player.js', import.meta.url).pathname)]);

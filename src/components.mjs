@@ -4,6 +4,16 @@ export const studio = JSON.parse(
   readFileSync(new URL('./studio.json', import.meta.url), 'utf8'),
 )
 
+// Both stylesheets are inlined into every page's <head>: as external files they blocked the first
+// paint (and the LCP hero) on a round trip each, and Netlify revalidates them on every visit anyway.
+// Comments are stripped; the CSS has no comment-like strings, and check.mjs uses the same pattern.
+const inlineCss = ['styles.css', 'motion.css']
+  .map((name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8'))
+  .join('\n')
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/\n\s*\n/g, '\n')
+  .trim()
+
 export const site = {
   name: 'Small City Studios',
   phone: '860-993-0052',
@@ -124,7 +134,7 @@ export function studioGallery({ all = false } = {}) {
   const frames = all ? roomFrames : roomFrames.slice(0, 3)
   const item = ([name, alt, label, line], i) =>
     `<li class="room-item room-item-${i + 1}"><button type="button" class="room-open duo" data-full="/assets/${name}-${name === 'studio-production' ? 1440 : 1920}.webp" data-alt="${escape(alt)}" data-label="${escape(label)}" data-line="${escape(line)}" aria-haspopup="dialog">${studioImage(name, '', { sizes: i === 0 ? '(max-width: 759px) calc(100vw - 48px), 66vw' : '(max-width: 759px) calc(100vw - 48px), 33vw' })}<span class="visually-hidden">Enlarge photo: ${escape(label)}</span></button><p class="room-cap"><span class="eyebrow">${label}</span>${line}</p></li>`
-  return `<section class="studio-section room-section" aria-labelledby="studio-heading"><div class="container"><div class="room-head">${eyebrow('87 Church St, East Hartford')}<h2 id="studio-heading">The room.</h2><p>Control room, live room and lounge.</p></div><ul class="room-grid${all ? ' room-grid-all' : ''}" role="list">${frames.map(item).join('')}</ul><div class="studio-visit"><p>Sessions by appointment. Clear guests with Chase before you arrive.</p>${link('/recording/', 'Recording rates')}</div></div></section>${roomDialog()}`
+  return `<section class="studio-section room-section" aria-labelledby="studio-heading"><div class="container"><div class="room-head">${eyebrow('87 Church St, East Hartford')}<h2 id="studio-heading">The room.</h2><p>Tap a photo to see it full size.</p></div><ul class="room-grid${all ? ' room-grid-all' : ''}" role="list">${frames.map(item).join('')}</ul><div class="studio-visit"><p>Sessions are by appointment.</p>${link('/recording/', 'Recording rates')}</div></div></section>${roomDialog()}`
 }
 
 export function roomDialog() {
@@ -151,7 +161,7 @@ export function header(path) {
   return `<a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header"><div class="container header-inner">
     <a class="brand" href="/" aria-label="Small City Studios homepage"><img src="/assets/logo-light.svg" width="54" height="37" alt=""><span>SMALL CITY<br>STUDIOS<span class="brand-period">.</span></span></a>
-    <nav class="desktop-nav" aria-label="Main navigation">${nav}</nav>
+    <nav class="desktop-nav" aria-label="Main navigation">${nav}<span class="playhead" aria-hidden="true"></span></nav>
     <div class="header-tools"><a class="header-phone" href="tel:${site.tel}"><span class="visually-hidden">Call or text </span>${site.phone}</a><a class="header-cta" href="/booking/"${path === '/booking/' ? ' aria-current="page"' : ''}>${recLight}${label('Book<span class="cta-long"> a session</span>')}</a></div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav"><span>Menu</span><span class="menu-lines" aria-hidden="true"></span></button>
   </div><nav class="mobile-nav container" id="mobile-nav" aria-label="Mobile navigation" hidden>${nav}<a class="mobile-phone" href="tel:${site.tel}">Call or text ${site.phone}</a></nav></header>`
@@ -178,8 +188,8 @@ export const signature = (role = 'Owner, engineer, producer') =>
 
 // service: a booking-form key (mixing, recording, beats) so the closing CTA keeps the page's context.
 export function cta(
-  title = 'Call Chase.',
-  text = 'Text me the song and what it needs. We lock in scope and price before anything gets booked.',
+  title = 'Call me.',
+  text = 'Text me the song and what it needs. I’ll tell you what it’ll take and what it costs.',
   service = '',
 ) {
   return `<section class="closing-section"><div class="container"><p class="closing-status"><span class="rec-dot" aria-hidden="true"></span>By appointment</p><h2 class="closing-title">${title}</h2><p class="closing-phone"><a href="tel:${site.tel}"><span class="visually-hidden">Call </span>${site.phone}</a></p><div class="closing-foot"><div><p class="voice">${text}</p>${signature()}</div><div class="closing-actions">${link('sms:' + site.tel, 'Text me the song')}${link('/booking/' + (service ? '?service=' + service : ''), 'Book a session', 'button button-outline')}</div></div></div></section>`
@@ -244,7 +254,7 @@ export function coverWall(items = selectedWork) {
         ? '(max-width: 759px) calc(100vw - 48px), 58vw'
         : '(max-width: 759px) calc(100vw - 48px), 40vw',
     )
-  return `<section class="wall-section" aria-labelledby="wall-heading"><div class="container"><div class="wall-head"><p class="wall-number" aria-hidden="true">250+</p><div class="wall-copy"><h2 id="wall-heading">Made in this room.</h2><p>250+ artists through the room. These are a few.</p></div>${link('/projects/', 'All credits')}</div><ul class="wall" role="list">${items.map(tile).join('')}</ul><p class="credits-note">Official videos via YouTube. Explicit content.</p></div></section>`
+  return `<section class="wall-section" aria-labelledby="wall-heading"><div class="container"><div class="wall-head"><p class="wall-number" aria-hidden="true">250+</p><div class="wall-copy"><h2 id="wall-heading">Made in this room.</h2><p>A few of the 250+ artists who’ve recorded here. Pick any one to watch the official video.</p></div>${link('/projects/', 'All credits')}</div><ul class="wall" role="list">${items.map(tile).join('')}</ul><p class="credits-note">Official videos via YouTube. Explicit content.</p></div></section>`
 }
 
 export function videoDialog() {
@@ -452,5 +462,5 @@ export function layout(page) {
   const schema = noindex
     ? ''
     : `<script type="application/ld+json">${schemaGraph(page)}</script>`
-  return `<!doctype html><html lang="en" class="scheme-only-dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${meta}<link rel="preload" href="/assets/Archivo.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/JetBrainsMono.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/motion.css"><script src="/assets/motion.js" defer></script><script src="/assets/app.js" defer></script>${hasAB ? '<script src="/assets/ab-player.js" defer></script>' : ''}<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>${schema}</head><body id="top" class="${bodyClass}">${header(path)}<main id="main" tabindex="-1">${content}</main>${footer(path)}${videoDialog()}</body></html>`
+  return `<!doctype html><html lang="en" class="scheme-only-dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${meta}<link rel="preload" href="/assets/Archivo.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/JetBrainsMono.woff2" as="font" type="font/woff2" crossorigin><style>${inlineCss}</style><script src="/assets/motion.js" defer></script><script src="/assets/app.js" defer></script>${hasAB ? '<script src="/assets/ab-player.js" defer></script>' : ''}<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>${schema}</head><body id="top" class="${bodyClass}">${header(path)}<main id="main" tabindex="-1">${content}</main>${footer(path)}${videoDialog()}</body></html>`
 }

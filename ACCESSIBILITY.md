@@ -18,7 +18,6 @@ Without these conditions, the page is the complete static layout: hero, credits 
 | Made in this room | Credit stills sit in the room's red duotone and ease to true colour, with a slight push-in, on hover/focus | Interaction |
 | The room | Photos ease from duotone to colour on hover/focus; each photo morphs into a lightbox dialog and back | Interaction |
 | Inner pages | Headline mask-up and hero photo power-up on load | One-shot load |
-| Home reviews | Seven client quotes rotate once (a meter times each quote), then stop | One pass, finite |
 | Site-wide | Cross-page wipe with hover-intent prerendering; text-link rules fill like a level meter; buttons drop 1px on press | Interaction |
 
 There is **no scroll-jacking anywhere**: no sticky or pinned sections and no scroll-length padding. The owner asked for this (Nov 13, 2026).
@@ -37,12 +36,10 @@ There is **no scroll-jacking anywhere**: no sticky or pinned sections and no scr
 - **Wall captions** sit on a dark gradient (at least 75%).
 - **The film grain** is static and very faint, and it is removed in forced colours, along with the duotones, the clip-text and the light spill.
 
-**The vocal chain, statically.**
+**The vocal chain.**
 
-- **Screen readers** get the full sentence and a description as text; the animated letters are `aria-hidden`.
-- **The stage list** is a real ordered list with every caption.
-- **Without motion,** the section shows the same line twice: Raw take (jittered) and Print (clean), with all stages listed.
-- **Contrast:** axe passes at several scroll positions through the chain, because its colors change with scroll.
+- **The heading** is a real `h2`, and the seven passes are a real ordered list with every caption.
+- **Without motion,** every pass shows at full contrast. With motion, each pass lights in turn as the section scrolls; the colours only move from muted to full text colour.
 
 **Hear the difference (A/B player).** It renders only when `src/studio.json` lists clips.
 
@@ -62,13 +59,9 @@ There is **no scroll-jacking anywhere**: no sticky or pinned sections and no scr
 
 **Client reviews (home).**
 
-- Without JS, all seven quotes are stacked and readable.
-- With JS, they rotate **once** through all seven and stop. No infinite loop. Each quote stays up 6 to 14 s, scaled to its length.
-- The rule above the controls fills like a meter while a quote is up. It is the timer: hover, keyboard focus in the section, the section being off screen, or a background tab all hold it.
-- Pause/Play, Previous and Next are native buttons. Previous or Next stops rotation for good.
-- Under reduced motion there is no auto-advance and no Pause button; Previous/Next swap quotes instantly.
-- Hidden quotes are `inert`. The quote area is `aria-live="off"` while rotating and `polite` after a Previous/Next press, so only user-requested changes are announced.
-- All quotes share one grid cell, so the section height never changes between quotes.
+- Static: all seven quotes are visible at once. No rotation, timer or JS.
+- Each review shows a verbatim pull line, all at one size. The full text sits in a native `<details>` ("Full review"), whose summary names the reviewer for screen readers and has a 44px target.
+- Right-column quotes are offset with `transform` only, so reading and tab order stay 1 to 7.
 
 **Room lightbox.**
 

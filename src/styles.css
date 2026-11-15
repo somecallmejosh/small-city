@@ -1,8 +1,12 @@
-@font-face{font-family:Archivo;src:url('/assets/Archivo.woff2') format('woff2');font-weight:100 900;font-stretch:62% 125%;font-style:normal;font-display:swap}
-@font-face{font-family:'JetBrains Mono';src:url('/assets/JetBrainsMono.woff2') format('woff2');font-weight:100 800;font-style:normal;font-display:swap}
+/* Each font is a preloaded core plus an -ext file fetched only for characters outside it.
+   scripts/subset-fonts.py writes both and prints these unicode-ranges. */
+@font-face{font-family:Archivo;src:url('/assets/Archivo.woff2') format('woff2');font-weight:100 900;font-stretch:62% 125%;font-style:normal;font-display:swap;unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00D7,U+2018-2019,U+201C-201D,U+2022,U+2026}
+@font-face{font-family:Archivo;src:url('/assets/Archivo-ext.woff2') format('woff2');font-weight:100 900;font-stretch:62% 125%;font-style:normal;font-display:swap;unicode-range:U+00A1-00A8,U+00AA-00B6,U+00B8-00D6,U+00D8-00FF,U+0102,U+0131,U+0152-0153,U+02BC,U+02C6,U+02DA,U+02DC,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+2009,U+2013-2014,U+201A,U+201E,U+2032-2033,U+2039-203A,U+2044,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:'JetBrains Mono';src:url('/assets/JetBrainsMono.woff2') format('woff2');font-weight:100 800;font-style:normal;font-display:swap;unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00D7,U+2018-2019,U+201C-201D,U+2022,U+2026}
+@font-face{font-family:'JetBrains Mono';src:url('/assets/JetBrainsMono-ext.woff2') format('woff2');font-weight:100 800;font-style:normal;font-display:swap;unicode-range:U+00A1-00A8,U+00AA-00B6,U+00B8-00D6,U+00D8-00FF,U+0102,U+0131,U+0152-0153,U+02BC,U+02C6,U+02DA,U+02DC,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+2013-2014,U+201A,U+201E,U+2032-2033,U+2039-203A,U+2044,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
 :root{--canvas:#0B0B0C;--surface:#121214;--text:#EAE8E3;--text-2:#B9B6AF;--meta:#8A8884;--rule:#222224;--control:#5E5C58;--rec:#D92D20;--vu:#D97706;--font-sans:Archivo,'Helvetica Neue',Arial,sans-serif;--font-display:Archivo,'Arial Narrow','Helvetica Neue',sans-serif;--font-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;--space:48px;color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:100px;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;scroll-padding-top:96px;-webkit-font-smoothing:antialiased}
 body{margin:0;background:var(--canvas);color:var(--text);font-family:var(--font-sans);font-size:16px;font-stretch:100%}
 main{isolation:isolate}
 body.dialog-open{overflow:hidden}
@@ -41,7 +45,7 @@ address{font-style:normal;line-height:1.7}
 
 .surface-section{background:var(--surface);border-block:1px solid var(--rule)}
 .site-header{border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:20;background:var(--canvas)}
-.header-inner{display:flex;align-items:center;justify-content:space-between;min-height:104px;gap:36px}
+.header-inner{display:flex;align-items:center;justify-content:space-between;min-height:72px;gap:36px}
 .brand{display:inline-flex;align-items:center;gap:14px;font-size:13px;line-height:1.2;letter-spacing:.015em;font-weight:600;flex-shrink:0}
 .brand img{width:54px;height:37px;object-fit:contain;flex-shrink:0}
 .brand-period{color:var(--meta)}
@@ -49,6 +53,20 @@ address{font-style:normal;line-height:1.7}
 .desktop-nav a{min-height:48px;display:flex;align-items:center;position:relative;white-space:nowrap}
 .desktop-nav a:hover,.desktop-nav a[aria-current]{color:var(--text)}
 .desktop-nav a[aria-current]::after{content:'';position:absolute;height:1px;background:var(--text);bottom:0;left:0;width:100%}
+/* Desktop nav rides the header's bottom rule, set next to the brand rather than centred. With JS, one
+   playhead bar replaces the underline: it slides to the hovered or focused link and parks on the current page. */
+@media(min-width:1000px){
+  .desktop-nav{align-self:stretch;margin-right:auto;padding-left:36px;border-left:1px solid var(--rule);position:relative}
+  .desktop-nav a{min-height:100%}
+  .desktop-nav:has(a:is(:hover,:focus-visible)) a[aria-current]:not(:hover,:focus-visible){color:var(--text-2)}
+  .playhead{position:absolute;left:0;bottom:-1px;width:1px;height:2px;background:var(--text);transform-origin:left;transform:translateX(var(--ph-x,0)) scaleX(var(--ph-w,0));opacity:0;pointer-events:none}
+  .desktop-nav[data-playhead] .playhead{opacity:1}
+  .desktop-nav.has-playhead a[aria-current]::after{content:none}
+}
+@media(min-width:1000px) and (prefers-reduced-motion:no-preference){
+  .desktop-nav.is-live .playhead{transition:transform 320ms var(--ease-cine),opacity 160ms linear}
+}
+@media(forced-colors:active){.playhead{background:CanvasText}}
 .header-cta{display:inline-flex;align-items:center;justify-content:center;gap:18px;font-size:13px;min-height:44px;border:1px solid var(--rule);padding:10px 13px 10px 17px;white-space:nowrap}
 .header-cta:hover{border-color:var(--text)}
 
@@ -67,15 +85,6 @@ address{font-style:normal;line-height:1.7}
 .step-number{font:11px var(--font-mono);color:var(--meta);display:block;margin-bottom:34px;font-variant-numeric:tabular-nums}
 .process-grid h3{font-size:25px;margin-bottom:18px}
 .process-grid p{font-size:14px;color:var(--meta);max-width:34ch;margin:0}
-.quote-section{padding-block:82px}
-.quote-layout{display:grid;grid-template-columns:1fr 3fr;gap:var(--space)}
-.quote-layout>.eyebrow{padding-top:7px}
-.quote-layout blockquote{font-size:clamp(26px,2.7vw,39px);line-height:1.45;font-weight:400;letter-spacing:-.035em;max-width:36ch;position:relative}
-.quote-layout blockquote::before{content:'“';position:absolute;transform:translateX(-100%)}
-.quote-layout blockquote::after{content:'”'}
-.quote-layout figcaption{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:11px;margin-top:30px;color:var(--meta)}
-.quote-name{font-weight:600;color:var(--text)}
-.quote-layout figcaption a{text-decoration:underline;text-underline-offset:4px}
 .closing-section{padding-block:88px;border-bottom:1px solid var(--rule)}
 
 .site-footer{padding-block:52px 0}
@@ -157,9 +166,9 @@ address{font-style:normal;line-height:1.7}
 .video-dialog>p{margin-top:18px;margin-bottom:0;color:var(--meta)}
 .video-dialog>p a{text-decoration:underline;text-underline-offset:4px}
 
-@media(max-width:1199px){.container{padding-inline:40px}.header-inner{gap:24px}.desktop-nav{gap:20px}.hero-description{font-size:15px}.hero-actions{gap:15px}.hero-actions>.text-link{font-size:12px}.form-panel{padding:28px}.service-options{grid-template-columns:1fr}.service-options small{grid-column:2}.service-options span{font-size:13px}.service-options small{font-size:11px}.booking-intro h1{font-size:72px}.quote-layout{grid-template-columns:1fr 2fr}}
-@media(max-width:999px){.desktop-nav{display:none}.header-inner{min-height:86px}.menu-toggle{display:flex;align-items:center;gap:16px;background:transparent;border:0;font-size:14px;padding:10px 0;min-height:48px}.menu-lines{width:23px;height:14px;border-top:1px solid currentColor;border-bottom:1px solid currentColor}.menu-toggle[aria-expanded=true] .menu-lines{height:1px;border-bottom:0}.hero-actions{align-items:flex-start;flex-direction:column;gap:8px}.hero-description{font-size:14px}.process-grid{gap:24px}.process-grid h3{font-size:22px}.quote-layout{grid-template-columns:1fr}.quote-layout>.eyebrow{margin:0}.quote-layout blockquote{max-width:40ch}.footer-grid{gap:30px}.booking-grid{gap:32px}.booking-intro h1{font-size:62px}.form-panel{padding:24px}}
-@media(max-width:759px){:root{--space:32px}.container{padding-inline:24px}h1{font-size:64px}h2{font-size:43px}.eyebrow{font-size:11px}.small{font-size:16px}.brand{font-size:12px}.brand img{width:48px;height:33px}.header-inner{min-height:82px}.hero-description{font-size:17px;max-width:34ch;margin-bottom:28px}.hero-actions{flex-direction:row;align-items:center;gap:16px;flex-wrap:wrap}.hero-actions>.text-link{font-size:14px}.button{min-height:56px;font-size:15px}.text-link{font-size:15px}.services-section,.process-section,.quote-section,.closing-section{padding-block:64px}.process-grid{grid-template-columns:1fr;gap:30px}.step-number{margin-bottom:22px}.process-grid h3{font-size:27px;margin-bottom:14px}.process-grid p{font-size:17px;max-width:40ch}.quote-layout{gap:24px}.quote-layout blockquote{font-size:29px;line-height:1.5}.quote-layout figure{padding-left:12px}.quote-layout figcaption{align-items:flex-start;flex-direction:column;gap:10px;font-size:14px;margin-top:25px}.site-footer{padding-top:38px}.footer-top{align-items:flex-start;flex-direction:column;gap:18px}.footer-top>p{font-size:14px}.footer-grid{grid-template-columns:1fr 1fr;gap:32px;font-size:16px;padding-block:32px}.footer-grid>div:last-child{grid-column:1/-1}.footer-grid .eyebrow{font-size:10px}.footer-grid .small{font-size:13px}.footer-links{gap:13px}.footer-bottom{flex-wrap:wrap;gap:17px;font-size:12px}.footer-bottom p:first-child{width:100%;margin-right:0}.footer-bottom a:last-child{margin-left:auto}.archive-heading{margin-top:50px;flex-direction:column;align-items:flex-start;gap:13px}.archive-heading p{font-size:16px}.playlist-links{gap:16px}.breadcrumb{font-size:12px;padding-bottom:28px;gap:10px}.faq-section,.bio-story{padding-block:60px}.faq-grid{grid-template-columns:1fr;gap:32px}.faq-list summary{font-size:17px;padding-block:22px}.faq-answer{font-size:17px}.booking-section{padding-block:48px 60px}.booking-grid{grid-template-columns:1fr;gap:36px}.booking-intro h1{font-size:64px;margin-bottom:28px}.contact-mini{margin-top:28px;max-width:none}.contact-mini .small{font-size:14px;max-width:38ch;margin-bottom:0}.form-panel{padding:24px 20px}.form-field{gap:11px;margin-bottom:25px}.form-field label,.service-options legend{font-size:16px}.form-field label span,.service-options legend span{font-size:12px}.form-field input,.form-field textarea,.form-field select,#message-text{font-size:16px;padding:14px}.form-field input{height:54px}.service-options{gap:11px}.service-options label{grid-template-columns:20px minmax(0,1fr);padding:16px;gap:8px 12px}.service-options span{font-size:16px}.service-options small{font-size:13px}.service-options input{width:18px;height:18px}.field-hint{font-size:13px}.form-note{font-size:14px}.privacy-note{font-size:13px}.form-panel .eyebrow{font-size:10px}#message-review h2{font-size:36px}#message-review>p:not(.eyebrow){font-size:16px}.contact-photo img{height:360px;object-position:35% center}.video-dialog{padding:16px;width:calc(100vw - 24px)}.video-dialog-heading h2{font-size:18px}.video-dialog>p{font-size:13px}}
+@media(max-width:1199px){.container{padding-inline:40px}.header-inner{gap:24px}.desktop-nav{gap:20px}.hero-description{font-size:15px}.hero-actions{gap:15px}.hero-actions>.text-link{font-size:12px}.form-panel{padding:28px}.service-options{grid-template-columns:1fr}.service-options small{grid-column:2}.service-options span{font-size:13px}.service-options small{font-size:11px}.booking-intro h1{font-size:72px}}
+@media(max-width:999px){.desktop-nav{display:none}.header-inner{min-height:68px}.menu-toggle{display:flex;align-items:center;gap:16px;background:transparent;border:0;font-size:14px;padding:10px 0;min-height:48px}.menu-lines{width:23px;height:14px;border-top:1px solid currentColor;border-bottom:1px solid currentColor}.menu-toggle[aria-expanded=true] .menu-lines{height:1px;border-bottom:0}.hero-actions{align-items:flex-start;flex-direction:column;gap:8px}.hero-description{font-size:14px}.process-grid{gap:24px}.process-grid h3{font-size:22px}.footer-grid{gap:30px}.booking-grid{gap:32px}.booking-intro h1{font-size:62px}.form-panel{padding:24px}}
+@media(max-width:759px){:root{--space:32px}.container{padding-inline:24px}h1{font-size:64px}h2{font-size:43px}.eyebrow{font-size:11px}.small{font-size:16px}.brand{font-size:12px}.brand img{width:48px;height:33px}.header-inner{min-height:68px}.hero-description{font-size:17px;max-width:34ch;margin-bottom:28px}.hero-actions{flex-direction:row;align-items:center;gap:16px;flex-wrap:wrap}.hero-actions>.text-link{font-size:14px}.button{min-height:56px;font-size:15px}.text-link{font-size:15px}.services-section,.process-section,.closing-section{padding-block:64px}.process-grid{grid-template-columns:1fr;gap:30px}.step-number{margin-bottom:22px}.process-grid h3{font-size:27px;margin-bottom:14px}.process-grid p{font-size:17px;max-width:40ch}.site-footer{padding-top:38px}.footer-top{align-items:flex-start;flex-direction:column;gap:18px}.footer-top>p{font-size:14px}.footer-grid{grid-template-columns:1fr 1fr;gap:32px;font-size:16px;padding-block:32px}.footer-grid>div:last-child{grid-column:1/-1}.footer-grid .eyebrow{font-size:10px}.footer-grid .small{font-size:13px}.footer-links{gap:13px}.footer-bottom{flex-wrap:wrap;gap:17px;font-size:12px}.footer-bottom p:first-child{width:100%;margin-right:0}.footer-bottom a:last-child{margin-left:auto}.archive-heading{margin-top:50px;flex-direction:column;align-items:flex-start;gap:13px}.archive-heading p{font-size:16px}.playlist-links{gap:16px}.breadcrumb{font-size:12px;padding-bottom:28px;gap:10px}.faq-section,.bio-story{padding-block:60px}.faq-grid{grid-template-columns:1fr;gap:32px}.faq-list summary{font-size:17px;padding-block:22px}.faq-answer{font-size:17px}.booking-section{padding-block:48px 60px}.booking-grid{grid-template-columns:1fr;gap:36px}.booking-intro h1{font-size:64px;margin-bottom:28px}.contact-mini{margin-top:28px;max-width:none}.contact-mini .small{font-size:14px;max-width:38ch;margin-bottom:0}.form-panel{padding:24px 20px}.form-field{gap:11px;margin-bottom:25px}.form-field label,.service-options legend{font-size:16px}.form-field label span,.service-options legend span{font-size:12px}.form-field input,.form-field textarea,.form-field select,#message-text{font-size:16px;padding:14px}.form-field input{height:54px}.service-options{gap:11px}.service-options label{grid-template-columns:20px minmax(0,1fr);padding:16px;gap:8px 12px}.service-options span{font-size:16px}.service-options small{font-size:13px}.service-options input{width:18px;height:18px}.field-hint{font-size:13px}.form-note{font-size:14px}.privacy-note{font-size:13px}.form-panel .eyebrow{font-size:10px}#message-review h2{font-size:36px}#message-review>p:not(.eyebrow){font-size:16px}.contact-photo img{height:360px;object-position:35% center}.video-dialog{padding:16px;width:calc(100vw - 24px)}.video-dialog-heading h2{font-size:18px}.video-dialog>p{font-size:13px}}
 @media(max-width:374px){.container{padding-inline:20px}.hero-actions{align-items:flex-start;flex-direction:column;gap:8px}.footer-grid{grid-template-columns:1fr}.footer-grid>div:last-child{grid-column:auto}.form-panel{padding:20px 15px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
 
@@ -190,7 +199,7 @@ address{font-style:normal;line-height:1.7}
 
 /* Cinematic layer: static layout and fallbacks. All movement lives in motion.css behind the
    reduced-motion gate; everything below is the complete, readable page without it. */
-:root{--header-h:104px;--gutter:64px;--ease-cine:cubic-bezier(.16,1,.3,1)}
+:root{--header-h:72px;--gutter:64px;--ease-cine:cubic-bezier(.16,1,.3,1)}
 
 .cine-hero{position:relative;min-height:calc(100svh - var(--header-h));display:flex;align-items:flex-end;overflow:clip;background:var(--canvas);isolation:isolate}
 .cine-media{position:absolute;inset:0;z-index:-3;overflow:clip}
@@ -216,8 +225,6 @@ address{font-style:normal;line-height:1.7}
 .room-head{padding-bottom:48px}
 
 .studio-section .studio-visit{margin-top:40px}
-.quote-layout{grid-template-columns:1fr}
-.quote-layout blockquote{font-size:clamp(30px,3.6vw,56px);line-height:1.25;letter-spacing:-.03em;max-width:28ch}
 .closing-section{padding-block:96px 88px}
 .closing-status{display:flex;align-items:center;gap:10px;font:11px/1.6 var(--font-mono);letter-spacing:.11em;text-transform:uppercase;color:var(--text-2);margin:0 0 24px}
 .rec-dot{width:8px;height:8px;background:var(--rec);display:inline-block;flex-shrink:0}
@@ -225,14 +232,13 @@ address{font-style:normal;line-height:1.7}
 .closing-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:24px 40px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:28px}
 .closing-foot p{margin:0;color:var(--text-2);max-width:46ch;font-size:16px}
 @media(max-width:1199px){:root{--gutter:40px}}
-@media(max-width:999px){:root{--header-h:86px}}
+@media(max-width:999px){:root{--header-h:68px}}
 @media(max-width:759px){
-  :root{--header-h:82px;--gutter:24px}
+  :root{--header-h:68px;--gutter:24px}
   .cine-inner{padding-block:32px 36px}.cine-title{font-size:clamp(60px,19vw,110px);margin-bottom:24px}.cine-foot{padding-top:20px}.cine-foot .hero-description{font-size:17px}.cine-foot .hero-actions{gap:16px;flex-wrap:wrap}
   
   
   .services-intro p,.process-head p,.room-head p{font-size:17px}
-  .quote-layout blockquote{font-size:29px}
   .closing-section{padding-block:64px}.closing-title{font-size:clamp(54px,17vw,90px);margin-bottom:32px}.closing-foot p{font-size:17px}
 }
 @media(max-width:374px){:root{--gutter:20px}.cine-foot .hero-actions{flex-direction:column;align-items:flex-start;gap:8px}}
@@ -275,13 +281,6 @@ address{font-style:normal;line-height:1.7}
 /* =============================================================================================
    The vocal chain redesign: static layer. Every piece below is complete without motion.
    ============================================================================================= */
-@property --comp{syntax:'<number>';inherits:true;initial-value:1}
-@property --pitch{syntax:'<number>';inherits:true;initial-value:1}
-@property --time{syntax:'<number>';inherits:true;initial-value:1}
-@property --dyn{syntax:'<number>';inherits:true;initial-value:1}
-@property --ess{syntax:'<number>';inherits:true;initial-value:1}
-@property --print{syntax:'<number>';inherits:true;initial-value:1}
-@property --grid{syntax:'<number>';inherits:true;initial-value:.35}
 
 /* Hero: the REC tally (outside-the-booth light) and a headline sized for "in the pocket." */
 .rec-tally{position:absolute;top:24px;right:var(--gutter);z-index:1;display:flex;align-items:center;gap:8px;margin:0;padding:6px 10px;background:var(--canvas);font:11px/1.4 var(--font-mono);letter-spacing:.14em;color:var(--text)}
@@ -291,25 +290,13 @@ address{font-style:normal;line-height:1.7}
 /* Text links: permanent rule; the level-meter fill lives in ::after (motion.css sweeps it). */
 .text-link .label::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:repeating-linear-gradient(90deg,currentColor 0 calc(12.5% - 2px),transparent calc(12.5% - 2px) 12.5%);clip-path:inset(0 100% 0 0)}
 
-/* The vocal chain. Letters read registered properties: 0 = raw, 1 = processed. */
+/* The vocal chain: a heading, then the seven passes. */
 .chain-section{padding-block:96px;border-top:1px solid var(--rule)}
 .chain-stage{display:grid;gap:40px}
-.chain-raw{--comp:0;--pitch:0;--time:0;--dyn:0;--ess:0;--print:0}
-.chain-take{position:relative}
-.chain-tag{font:11px/1.6 var(--font-mono);letter-spacing:.11em;text-transform:uppercase;color:var(--meta);margin:0 0 12px}
-.chain-raw .chain-tag{margin-bottom:28px}
-.chain-line{font-family:var(--font-display);font-stretch:66%;font-weight:780;font-size:clamp(48px,8.8vw,164px);line-height:1;letter-spacing:-.02em;margin:0;color:color-mix(in srgb,var(--text) calc(var(--print) * 100%),var(--text-2));text-wrap:balance}
-.cw{display:inline-block;white-space:nowrap}
-.cg{display:inline-block;position:relative;transform-origin:50% 80%;transform:translate(calc(var(--dx) * (1 - var(--time))),calc(var(--dy) * (1 - var(--pitch)))) scale(calc(1 + var(--ds) * (1 - var(--dyn)) + .22 * var(--sib,0) * (1 - var(--ess))))}
-.cg::before{content:attr(data-g);position:absolute;left:0;top:0;color:var(--text-2);opacity:calc(.34 * (1 - var(--comp)));transform:translate(var(--gx),var(--gy));pointer-events:none}
-.cg-s{color:color-mix(in srgb,var(--rec) calc((1 - var(--ess)) * 100%),currentColor)}
-.chain-grid{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));height:14px;margin-top:20px;opacity:var(--grid)}
-.chain-grid i{border-left:1px solid var(--rule)}
-.chain-grid i:nth-child(4n+1){border-left-color:var(--meta)}
+.chain-head h2{margin-bottom:20px}
+.chain-head p{color:var(--text-2);max-width:48ch;margin:0;font-size:16px}
 /* The seven passes read as one signal chain: a continuous cyan track with a node per stage
-   (the active node lights red as the line is processed). Vertical where seven columns don't fit. */
-.chain-flow{display:grid;gap:28px}
-.chain-lead{margin:0;font-size:18px;color:var(--text-2);max-width:48ch}
+   (the active node lights red as the section scrolls). Vertical where seven columns don't fit. */
 .chain-steps{position:relative;list-style:none;margin:0;padding:24px 0 0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:24px}
 .chain-steps::before{content:'';position:absolute;top:3px;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),rgb(62 198 234/.3))}
 .chain-steps li{position:relative;color:var(--text)}
@@ -393,11 +380,6 @@ address{font-style:normal;line-height:1.7}
 .room-dialog-img{width:100%;height:auto;max-height:calc(100dvh - 200px);object-fit:contain;background:var(--surface)}
 .room-dialog-cap{margin:14px 0 0;color:var(--text-2);font-size:16px}
 
-/* Quote: hanging punctuation on the paragraph. */
-.quote-layout blockquote::before,.quote-layout blockquote::after{content:none}
-.quote-layout blockquote p{position:relative;margin:0}
-.quote-layout blockquote p::before{content:'\201C';position:absolute;transform:translateX(-100%)}
-.quote-layout blockquote p::after{content:'\201D'}
 
 @media(max-width:999px){
   .chain-steps{grid-template-columns:1fr;gap:18px;padding:0 0 0 28px}
@@ -492,10 +474,6 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
 .poster-lines .voice{font-size:clamp(24px,2.4vw,36px);line-height:1.15;margin:0;max-width:26ch}
 .poster-more .words-close{flex-direction:column;align-items:flex-start;border:0;margin:0;padding:0}
 
-/* Vocal chain: the beat grid is cyan light; Print draws a red rule under the finished line. */
-.chain-grid i{border-left-color:rgb(62 198 234/.32)}
-.chain-grid i:nth-child(4n+1){border-left-color:var(--cyan)}
-.chain-take::after{content:'';display:block;height:3px;margin-top:14px;background:var(--red);transform-origin:left;transform:scaleX(var(--print))}
 
 /* Services: each row carries a photo lit by the room. */
 .svc{grid-template-columns:200px minmax(0,4fr) minmax(0,5fr) minmax(0,3fr) auto;align-items:center}
@@ -841,22 +819,6 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
 .footer-nav a[aria-current]{color:var(--text);text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:2px;text-underline-offset:8px}
 @media(max-width:759px){.footer-nav{flex-direction:column;gap:0;padding-block:20px}.footer-nav a{font-size:32px}}
 
-/* Client reviews. No JS: a stack. With JS: one cell, so the section never changes height between quotes. */
-.reviews-track{display:grid;gap:56px}
-.reviews-ready .reviews-track{gap:0}
-.reviews-ready .review{grid-area:1/1}
-.reviews-ready .review[inert]{visibility:hidden}
-.reviews-controls{position:relative;display:flex;align-items:center;gap:28px;margin-top:40px;padding-top:8px;border-top:1px solid var(--rule)}
-.reviews-controls[hidden]{display:none}
-.reviews-controls [hidden]{display:none}
-.reviews-count{margin:0 auto 0 0;font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:var(--meta);font-variant-numeric:tabular-nums}
-.reviews-count span{color:var(--text)}
-.reviews-meter{position:absolute;inset:-1px 0 auto;height:1px;overflow:hidden}
-.reviews-meter>span{display:block;height:100%;background:var(--text-2);transform:scaleX(0);transform-origin:left}
-@media(max-width:759px){.reviews-controls{gap:20px;flex-wrap:wrap}}
-/* The two long reviews set the section height for all seven; a smaller size keeps the gap under short ones small. */
-.quote-layout .review-long blockquote{font-size:clamp(22px,2.4vw,36px);line-height:1.35;max-width:44ch}
-@media(max-width:759px){.quote-layout .review-long blockquote{font-size:21px;line-height:1.45}}
 
 /* Usability pass (tasks/heuristics-audit.md). */
 /* Header: sticky at every width; "Book" stays beside Menu on small screens. */
@@ -897,3 +859,32 @@ body::after{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;op
 /* Bio poster: the breadcrumb sits on the photo, so it gets the kicker's chip. */
 .bio-poster .breadcrumb{display:flex;width:max-content;max-width:100%;background:var(--canvas);color:var(--text-2);padding:0 10px;margin-bottom:12px}
 .bio-poster .breadcrumb a{min-height:32px}
+
+/* Client reviews: press quotes on a record sleeve. Every pull is one size, so a long review never
+   reads louder than a short one. Two columns, the right one dropped by --drop for rhythm. */
+.press-section{padding-block:104px 96px}
+.press-section h2{margin-bottom:64px}
+.press-list{--drop:clamp(64px,7vw,112px);list-style:none;margin:0;padding:0 0 var(--drop);display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(48px,7vw,128px);align-items:start}
+.press-item{padding:28px 0 48px;border-top:1px solid var(--rule)}
+.press-item:nth-child(even){transform:translateY(var(--drop))}
+.press-pull{position:relative;margin:0;font-family:var(--font-display);font-stretch:66%;font-weight:720;font-size:clamp(34px,3.3vw,50px);line-height:1.04;letter-spacing:-.02em;text-wrap:balance;color:var(--text)}
+.press-pull::before{content:'\201C';position:absolute;transform:translateX(-100%);color:var(--meta)}
+.press-pull::after{content:'\201D';color:var(--meta)}
+.press-item figcaption{display:flex;flex-wrap:wrap;align-items:center;gap:0 24px;margin-top:16px;font:500 12px/1.5 var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
+.press-name{color:var(--text)}
+.press-item figcaption a{display:inline-flex;align-items:center;min-height:44px;color:var(--meta);text-decoration:underline;text-underline-offset:4px}
+.press-item figcaption a:hover{color:var(--text)}
+.press-more summary{display:inline-flex;align-items:center;gap:10px;min-height:44px;list-style:none;cursor:pointer;color:var(--text-2)}
+.press-more summary::-webkit-details-marker{display:none}
+.press-more summary::after{content:'+';color:var(--meta)}
+.press-more[open] summary::after{content:'\2212'}
+.press-more summary:hover{color:var(--text)}
+.press-more{flex-basis:100%;margin-top:-8px}
+.press-more p{margin:4px 0 0;max-width:52ch;font:16px/1.7 var(--font-sans);letter-spacing:0;text-transform:none;color:var(--text-2)}
+@media(max-width:759px){
+  .press-section{padding-block:64px}.press-section h2{margin-bottom:40px}
+  .press-list{grid-template-columns:1fr;padding-bottom:0}
+  .press-item{padding-bottom:36px}.press-item:nth-child(even){transform:none}
+  .press-pull{font-size:clamp(30px,8.6vw,38px)}
+  .press-more p{font-size:17px}
+}

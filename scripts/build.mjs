@@ -8,10 +8,9 @@ const output = join(root, 'dist');
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(join(root, 'public'), output, { recursive: true, filter: source => !source.includes(`${process.platform === 'win32' ? '\\' : '/'}new-studio-images`) && !/\.heic$/i.test(source) });
-await cp(join(root, 'src/styles.css'), join(output, 'assets/styles.css'));
+// styles.css and motion.css are inlined into each page by layout() in src/components.mjs.
 await cp(join(root, 'src/app.js'), join(output, 'assets/app.js'));
 await cp(join(root, 'src/motion.js'), join(output, 'assets/motion.js'));
-await cp(join(root, 'src/motion.css'), join(output, 'assets/motion.css'));
 await cp(join(root, 'src/ab-player.js'), join(output, 'assets/ab-player.js'));
 const entries = pages();
 for (const p of entries) {

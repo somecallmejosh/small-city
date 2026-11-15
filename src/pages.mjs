@@ -23,15 +23,13 @@ import {
 } from './components.mjs'
 import { readFileSync } from 'node:fs'
 
-const processSteps = `<ol class="process-grid" role="list"><li><span class="step-number">01</span><h3>Send the song.</h3><p>Rough mix, demo link or a plan for the session. Text it over.</p></li><li><span class="step-number">02</span><h3>Confirm scope and price.</h3><p>Chase confirms the work, the rate and the date. Nothing is booked before that.</p></li><li><span class="step-number">03</span><h3>Track or send files.</h3><p>Come in and record, or send the session for a remote mix.</p></li></ol>`
+const processSteps = `<ol class="process-grid" role="list"><li><span class="step-number">01</span><h3>Send the song.</h3><p>Text me a rough mix, a demo link or a plan for the session.</p></li><li><span class="step-number">02</span><h3>Confirm scope and price.</h3><p>I confirm the work, the rate and the date. Nothing is booked before that.</p></li><li><span class="step-number">03</span><h3>Track or send files.</h3><p>Come in and record, or send me the session for a remote mix.</p></li></ol>`
+const processSection = (cls = '') =>
+  `<section class="process-section${cls}"><div class="container"><div class="process-head"><h2>How booking works.</h2><p>You can do all of it by text.</p></div>${processSteps}</div></section>`
 
 // ---------------------------------------------------------------------------------------------
-// The vocal chain. The section's own heading is rendered as a raw take: every letter carries seeded
-// pitch drift, timing drift, uneven level, a ghost from another take, and hot sibilance on S.
-// Scroll drives registered custom properties (motion.css) that process it stage by stage.
-// The readable sentence is visually hidden text; the letters are aria-hidden.
+// The vocal chain: the seven passes, as a list. Scroll lights each pass in turn (motion.css).
 // ---------------------------------------------------------------------------------------------
-const chainLine = 'Here’s what happens to your vocals.'
 const chainStages = [
   ['Raw take', 'What comes out of the booth.'],
   ['Comp', 'The best of every take, built into one performance.'],
@@ -42,50 +40,20 @@ const chainStages = [
   ['Print', 'A vocal that sits in the pocket.'],
 ]
 
-function seeded(seed) {
-  let t = seed >>> 0
-  return () => {
-    t += 0x6d2b79f5
-    let r = Math.imul(t ^ (t >>> 15), 1 | t)
-    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r)
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-function chainGlyphs() {
-  const rand = seeded(1987)
-  const span = (lo, hi) => (lo + rand() * (hi - lo)).toFixed(3)
-  return chainLine
-    .split(' ')
-    .map(
-      (word) =>
-        `<span class="cw">${[...word]
-          .map((ch) => {
-            const sib = /s/i.test(ch)
-            const vars = `--dx:${span(-0.14, 0.14)}em;--dy:${span(-0.2, 0.2)}em;--ds:${span(-0.16, 0.2)};--gx:${span(-0.12, 0.12)}em;--gy:${span(-0.1, 0.1)}em${sib ? ';--sib:1' : ''}`
-            return `<span class="cg${sib ? ' cg-s' : ''}" data-g="${escape(ch)}" style="${vars}">${escape(ch)}</span>`
-          })
-          .join('')}</span>`,
-    )
-    .join(' ')
-}
-
 function vocalChain() {
-  const line = (cls, label) =>
-    `<div class="chain-take ${cls}"><p class="chain-tag">${label}</p><p class="chain-line" aria-hidden="true">${chainGlyphs()}</p><div class="chain-grid" aria-hidden="true">${'<i></i>'.repeat(16)}</div></div>`
-  return `<section class="chain-section" aria-labelledby="chain-heading"><div class="container chain-stage"><h2 id="chain-heading" class="visually-hidden">${chainLine}</h2><p class="visually-hidden">The heading is shown as a raw take, then processed through seven passes into a finished vocal.</p>${line('chain-raw', 'Raw take')}${line('chain-print', 'Print')}<div class="chain-flow"><p class="chain-lead">Seven passes, from the booth to the release.</p><ol class="chain-steps" role="list">${chainStages.map(([name, text], i) => `<li><h3><span class="chain-n">0${i + 1}</span>${name}</h3><p>${text}</p></li>`).join('')}</ol></div><p class="chain-note">Comping, tuning and timing are scoped with the song.</p></div></section>`
+  return `<section class="chain-section" aria-labelledby="chain-heading"><div class="container chain-stage"><div class="chain-head"><h2 id="chain-heading">What I do with your vocals.</h2><p>Seven passes, from the booth to the release.</p></div><ol class="chain-steps" role="list">${chainStages.map(([name, text], i) => `<li><h3><span class="chain-n">0${i + 1}</span>${name}</h3><p>${text}</p></li>`).join('')}</ol><p class="chain-note">I scope comping, tuning and timing with each song.</p></div></section>`
 }
 
 // Hear the difference: renders only when src/studio.json lists clip pairs (public/audio/).
 function abSection() {
   const tracks = studio.abTracks || []
   if (!tracks.length) return ''
-  return `<section class="ab-section" aria-labelledby="ab-heading"><div class="container"><div class="ab-head"><h2 id="ab-heading">Hear the difference.</h2><p>The raw take against Chase’s mix, at the same moment in the song. Level-matched, so you hear the mix, not the volume.</p></div><div class="ab-player" data-ab-player><ol class="ab-tracks" role="list">${tracks.map((t, i) => `<li><button type="button" class="ab-track" data-index="${i}" data-raw="${escape(t.raw)}" data-mixed="${escape(t.mixed)}" aria-pressed="${i === 0}"><span class="ab-artist">${escape(t.artist)}</span><span class="ab-title">${escape(t.title)}</span></button><p class="ab-fallback">${escape(t.artist)}, ${escape(t.title)}: <a href="${escape(t.raw)}">raw take</a>, <a href="${escape(t.mixed)}">mix</a></p></li>`).join('')}</ol><div class="ab-deck" hidden><button type="button" class="button button-outline ab-play">${recLight}${label('Play')}</button><div class="ab-switch" role="group" aria-label="Source"><button type="button" class="ab-src" data-src="raw" aria-pressed="false">Raw</button><button type="button" class="ab-src" data-src="mixed" aria-pressed="true">Mixed</button></div><div class="ab-transport"><div class="ab-scrub"><canvas class="ab-wave" aria-hidden="true"></canvas><label class="visually-hidden" for="ab-seek">Position</label><input type="range" id="ab-seek" name="ab-seek" min="0" max="0" step="0.1" value="0"></div><p class="ab-time"><span class="ab-now">0:00</span> / <span class="ab-dur">0:00</span></p></div><p class="ab-hint">Press A to switch between raw and mixed.</p></div><p class="visually-hidden ab-status" role="status" aria-live="polite"></p></div></div></section>`
+  return `<section class="ab-section" aria-labelledby="ab-heading"><div class="container"><div class="ab-head"><h2 id="ab-heading">Hear the difference.</h2><p>The raw take against my mix, at the same moment in the song. Level-matched, so you hear the mix, not the volume.</p></div><div class="ab-player" data-ab-player><ol class="ab-tracks" role="list">${tracks.map((t, i) => `<li><button type="button" class="ab-track" data-index="${i}" data-raw="${escape(t.raw)}" data-mixed="${escape(t.mixed)}" aria-pressed="${i === 0}"><span class="ab-artist">${escape(t.artist)}</span><span class="ab-title">${escape(t.title)}</span></button><p class="ab-fallback">${escape(t.artist)}, ${escape(t.title)}: <a href="${escape(t.raw)}">raw take</a>, <a href="${escape(t.mixed)}">mix</a></p></li>`).join('')}</ol><div class="ab-deck" hidden><button type="button" class="button button-outline ab-play">${recLight}${label('Play')}</button><div class="ab-switch" role="group" aria-label="Source"><button type="button" class="ab-src" data-src="raw" aria-pressed="false">Raw</button><button type="button" class="ab-src" data-src="mixed" aria-pressed="true">Mixed</button></div><div class="ab-transport"><div class="ab-scrub"><canvas class="ab-wave" aria-hidden="true"></canvas><label class="visually-hidden" for="ab-seek">Position</label><input type="range" id="ab-seek" name="ab-seek" min="0" max="0" step="0.1" value="0"></div><p class="ab-time"><span class="ab-now">0:00</span> / <span class="ab-dur">0:00</span></p></div><p class="ab-hint">Press A to switch between raw and mixed.</p></div><p class="visually-hidden ab-status" role="status" aria-live="polite"></p></div></div></section>`
 }
 
 // Chase in his own words (from his bio), as a poster: his photo in the room's red light, his line huge.
 function inHisWords() {
-  return `<section class="poster-section" aria-labelledby="poster-heading"><div class="poster duo duo-poster"><img src="/assets/chase.jpg" width="1242" height="830" loading="lazy" alt="Chase Briley working at the studio desk"><div class="container poster-copy"><h2 id="poster-heading" class="visually-hidden">Chase Briley, in his own words</h2><p class="poster-quote voice">When you work with me, it’s personal.</p></div></div><div class="container poster-more"><ul class="poster-lines" role="list"><li><p class="voice">250+ artists through this room. The records speak for themselves.</p></li><li><p class="voice">I mix and master right in front of you. Transparent. Raw.</p></li></ul><div class="words-close">${signature()}${link('/bio/', 'My story')}</div></div></section>`
+  return `<section class="poster-section" aria-labelledby="poster-heading"><div class="poster duo duo-poster"><img src="/assets/chase.webp" width="1242" height="830" loading="lazy" alt="Chase Briley working at the studio desk"><div class="container poster-copy"><h2 id="poster-heading" class="visually-hidden">Chase Briley, in his own words</h2><p class="poster-quote voice">When you work with me, it’s personal.</p></div></div><div class="container poster-more"><ul class="poster-lines" role="list"><li><p class="voice">I record it, mix it and master it, so you never have to explain your song to three different engineers.</p></li><li><p class="voice">Sit in on the mix and tell me what you’re hearing. We change it while you’re in the room.</p></li></ul><div class="words-close">${signature()}${link('/bio/', 'My story')}</div></div></section>`
 }
 
 const serviceRows = [
@@ -93,7 +61,7 @@ const serviceRows = [
     href: '/recording/',
     photo: 'studio-recording',
     name: 'Recording',
-    text: 'Vocal tracking with Chase at the desk. Punch-ins and comping as you go.',
+    text: 'Vocal tracking with me at the desk. I punch in and comp as you go.',
     price: '$70 / hr',
     meta: 'Engineer included',
     cta: 'Recording rates',
@@ -111,63 +79,67 @@ const serviceRows = [
     href: '/production/',
     photo: 'studio-production',
     name: 'Beats &amp; production',
-    text: 'Licensed beats or custom production. Rights and files agreed in writing.',
+    text: 'License one of my beats or have me make one. We agree on rights and files in writing.',
     price: 'Quoted per beat',
     meta: 'License or custom',
     cta: 'How beats work',
   },
 ]
 
-// Client reviews, copied verbatim from the live site. Without JS they stack; app.js turns them into
-// a rotator that plays one pass, holds on hover/focus/off-screen, and never auto-advances under reduced motion.
+// Client reviews, copied verbatim from the live site. Each pull is a verbatim line from its review,
+// set at one size so a long review never reads louder than a short one; the full text sits in a disclosure.
 const reviewList = [
-  [
-    'This is by far the best studio in CT. Very clean and updated. You can’t find better engineers! The sound quality and mixing is amazing &amp; the pricing is VERY affordable. If you are looking to make great music at a highly professional studio, this is definitely the place to go.',
-    'Karlee Alves',
-    'https://g.co/kgs/HGXqUE',
-  ],
-  [
-    'This studio has helped excel my music from average, to industry standard. Amazing engineers. Professional all around.',
-    'Joncarlo Cortese',
-    'https://g.co/kgs/xw2zSG',
-  ],
-  [
-    'Very beautiful studio! These pictures do not do it justice. Great quality engineering and mixing and a highly professional setting!',
-    'Kassondrah Moore',
-    'https://g.co/kgs/8SuGQ6',
-  ],
-  [
-    'Wonderful experience, good vibes and good people!!! I will be going back ASAP!',
-    'Craig Taylor',
-    'https://g.co/kgs/927VD3',
-  ],
-  [
-    'Small City Studios provides each artist they work with a comfortable, professional setting to bring out their best. I wouldn’t be where I am as an artist today without them. One of the top studios in Connecticut hands down. If you are serious about your music career and are looking for somewhere to develop your sound and grow, this is the place to go.',
-    'Adversity 627',
-    'https://g.co/kgs/NKoMqR',
-  ],
-  [
-    'preciate you mane fr, you mixed that shit like a mf too perfect',
-    'aj.rari',
-    '',
-  ],
-  [
-    'Very professional, very comfortable setting, great location, great quality, I’ve never had an issue or bad time, always great vibes. Lastly just great place to be creative overall!',
-    'Khalid Thompson',
-    '',
-  ],
+  {
+    pull: 'This is by far the best studio in CT.',
+    text: 'This is by far the best studio in CT. Very clean and updated. You can’t find better engineers! The sound quality and mixing is amazing &amp; the pricing is VERY affordable. If you are looking to make great music at a highly professional studio, this is definitely the place to go.',
+    name: 'Karlee Alves',
+    href: 'https://g.co/kgs/HGXqUE',
+  },
+  {
+    pull: 'This studio has helped excel my music from average, to industry standard.',
+    text: 'This studio has helped excel my music from average, to industry standard. Amazing engineers. Professional all around.',
+    name: 'Joncarlo Cortese',
+    href: 'https://g.co/kgs/xw2zSG',
+  },
+  {
+    pull: 'These pictures do not do it justice.',
+    text: 'Very beautiful studio! These pictures do not do it justice. Great quality engineering and mixing and a highly professional setting!',
+    name: 'Kassondrah Moore',
+    href: 'https://g.co/kgs/8SuGQ6',
+  },
+  {
+    pull: 'I will be going back ASAP!',
+    text: 'Wonderful experience, good vibes and good people!!! I will be going back ASAP!',
+    name: 'Craig Taylor',
+    href: 'https://g.co/kgs/927VD3',
+  },
+  {
+    pull: 'I wouldn’t be where I am as an artist today without them.',
+    text: 'Small City Studios provides each artist they work with a comfortable, professional setting to bring out their best. I wouldn’t be where I am as an artist today without them. One of the top studios in Connecticut hands down. If you are serious about your music career and are looking for somewhere to develop your sound and grow, this is the place to go.',
+    name: 'Adversity 627',
+    href: 'https://g.co/kgs/NKoMqR',
+  },
+  {
+    pull: 'You mixed that shit like a mf too perfect',
+    text: 'preciate you mane fr, you mixed that shit like a mf too perfect',
+    name: 'aj.rari',
+    href: '',
+  },
+  {
+    pull: 'I’ve never had an issue or bad time, always great vibes.',
+    text: 'Very professional, very comfortable setting, great location, great quality, I’ve never had an issue or bad time, always great vibes. Lastly just great place to be creative overall!',
+    name: 'Khalid Thompson',
+    href: '',
+  },
 ]
 function reviews() {
-  const n = reviewList.length
-  const slides = reviewList
+  const items = reviewList
     .map(
-      ([text, name, href], i) =>
-        `<div class="review${text.split(' ').length > 40 ? ' review-long' : ''}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}"><figure><blockquote${href ? ` cite="${href}"` : ''}><p>${text}</p></blockquote><figcaption><span class="quote-name">${name}</span>${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">Google review${newTab}</a>` : ''}</figcaption></figure></div>`,
+      ({ pull, text, name, href }) =>
+        `<li class="press-item"><figure><blockquote${href ? ` cite="${href}"` : ''}><p class="press-pull">${pull}</p></blockquote><figcaption><span class="press-name">${name}</span>${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">Google review${newTab}</a>` : ''}<details class="press-more"><summary>Full review<span class="visually-hidden"> from ${name}</span></summary><p>${text}</p></details></figcaption></figure></li>`,
     )
     .join('')
-  const button = (attr, text) =>
-    `<button type="button" class="text-link" ${attr}>${label(text)}</button>`
-  return `<section class="quote-section surface-section" aria-labelledby="reviews-heading" aria-roledescription="carousel" data-reviews><div class="container quote-layout"><h2 id="reviews-heading" class="visually-hidden">Client reviews</h2><div class="reviews-track" aria-live="off">${slides}</div><div class="reviews-controls" hidden><span class="reviews-meter" aria-hidden="true"><span></span></span>${button('data-review-toggle hidden', 'Pause')}<p class="reviews-count" aria-hidden="true"><span data-review-index>01</span> / ${String(n).padStart(2, '0')}</p>${button('data-review-prev aria-label="Previous review"', 'Previous')}${button('data-review-next aria-label="Next review"', 'Next')}</div></div></section>`
+  return `<section class="press-section surface-section" aria-labelledby="reviews-heading"><div class="container"><h2 id="reviews-heading">Reviews.</h2><ul class="press-list" role="list">${items}</ul></div></section>`
 }
 
 function home() {
@@ -176,8 +148,8 @@ function home() {
   ${vocalChain()}
   ${abSection()}
   ${inHisWords()}
-  <section class="services-section" id="services" aria-labelledby="services-heading"><div class="container"><div class="services-intro"><h2 id="services-heading">Services.</h2><p>Every job is scoped and priced before work starts.</p></div><ul class="svc-list" role="list">${serviceRows.map((s) => `<li class="svc"><div class="svc-photo duo">${studioImage(s.photo, '', { sizes: '(max-width: 759px) calc(100vw - 48px), 220px' })}</div><h3 class="svc-name">${recLight}${s.name}</h3><p class="svc-text">${s.text}</p><p class="svc-rate"><strong>${s.price}</strong><span>${s.meta}</span></p>${link(s.href, s.cta)}</li>`).join('')}</ul><p class="service-reassurance">Ask about block pricing for 8+ hours.</p></div></section>
-  <section class="process-section surface-section"><div class="container"><div class="process-head"><h2>Scope first.<br>Then the session.</h2><p>Work, price and date are confirmed before anything is booked.</p></div>${processSteps}</div></section>
+  <section class="services-section" id="services" aria-labelledby="services-heading"><div class="container"><div class="services-intro"><h2 id="services-heading">Services.</h2><p>Recording is billed by the hour. I quote mixing and beats once I hear what you have.</p></div><ul class="svc-list" role="list">${serviceRows.map((s) => `<li class="svc"><div class="svc-photo duo">${studioImage(s.photo, '', { sizes: '(max-width: 759px) calc(100vw - 48px), 220px' })}</div><h3 class="svc-name">${recLight}${s.name}</h3><p class="svc-text">${s.text}</p><p class="svc-rate"><strong>${s.price}</strong><span>${s.meta}</span></p>${link(s.href, s.cta)}</li>`).join('')}</ul><p class="service-reassurance">Ask about block pricing for 8+ hours.</p></div></section>
+  ${processSection(' surface-section')}
   ${studioGallery({ all: true })}
   ${reviews()}
   ${cta()}`
@@ -187,7 +159,7 @@ const services = {
   mixing: {
     title: 'Rap Mixing & Mastering: In-Studio & Remote',
     description:
-      'Rap, hip-hop and R&B mixing and mastering with Chase Briley. Vocals over a 2-track or full tracked-out stems, in-studio or remote. Scope and price confirmed before work starts.',
+      'I mix and master rap, hip-hop and R&B, in the studio or remotely. Send vocals over a 2-track or full tracked-out stems. I confirm scope and price before I start.',
     eyebrow: 'Mixing & mastering / In-studio + remote',
     crumb: 'Mixing & mastering',
     headline: 'Mixing &amp;<br>mastering.',
@@ -198,7 +170,7 @@ const services = {
       ['Format', '2-track or stems'],
       ['Where', 'In-studio or remote'],
       ['Engineer', 'Chase Briley'],
-      ['Booked', 'After scope and price'],
+      ['Send', 'Rough mix or private link'],
     ],
     image: 'studio-control-room',
     alt: 'Production desk, monitors, and live-room window at Small City Studios',
@@ -206,7 +178,7 @@ const services = {
     key: 'mixing',
     sectionTitle: 'What you’re sending.',
     sectionIntro:
-      'The quote depends on the session. Tell Chase which of these you have.',
+      'The quote depends on the session. Tell me which of these you have.',
     features: [
       [
         'Vocals + 2-track beat',
@@ -218,12 +190,12 @@ const services = {
       ],
       [
         'Mastering & delivery',
-        'Master, delivery formats, revision rounds and turnaround are set in the quote before work starts.',
+        'I spell out the master, delivery formats, revision rounds and turnaround in the quote.',
       ],
     ],
     priceTitle: 'Quoted per song.',
     priceText:
-      'Send a rough mix or a private link with a line of context. Chase confirms scope and price before anything starts. Editing, track count and the state of the rough all move the number.',
+      'The price depends on track count, how much editing the vocals need, and how close the rough mix already is.',
     prepare: [
       'Rough mix or private demo link',
       'One or two reference tracks, and what you like in each',
@@ -233,30 +205,30 @@ const services = {
     faqs: [
       [
         'Can I send files remotely?',
-        '<p>Yes. Scope, file handoff, notes, payment and delivery are agreed with Chase before the mix starts.</p>',
+        '<p>Yes. Send a private Drive, Dropbox or SoundCloud link. We work out notes, payment and delivery directly.</p>',
       ],
       [
         'I don’t know what files I have.',
-        '<p>Pick “Not sure yet” on the booking form. Name the DAW or studio it was tracked in and what you can export. Chase will sort out the handoff with you.</p>',
+        '<p>Pick “Not sure yet” on the booking form. Name the DAW or studio it was tracked in and what you can export. I’ll sort out the handoff with you.</p>',
       ],
       [
         'Are editing and tuning included?',
-        '<p>They’re scoped with the song. Flag comping, timing, tuning or repair up front so the quote covers it.</p>',
+        '<p>I scope them with the song. Flag comping, timing, tuning or repair up front so my quote covers it.</p>',
       ],
       [
         'How many revisions?',
-        '<p>Revision rounds are set in the quote. Send notes as one consolidated list per round.</p>',
+        '<p>I set the revision rounds in the quote. Send notes as one consolidated list per round.</p>',
       ],
       [
         'Can any recording be fixed?',
-        '<p>It depends on the source. Send a sample first. If it needs more than a mix, Chase will say so before work starts.</p>',
+        '<p>It depends on the source. Send a sample first. If it needs more than a mix, I’ll tell you up front.</p>',
       ],
     ],
   },
   recording: {
     title: 'Rap Recording & Engineering in East Hartford, CT',
     description:
-      'Rap, hip-hop and R&B vocal tracking with Chase Briley at Small City Studios in East Hartford, CT. $70 per hour, engineer included.',
+      'I record rap, hip-hop and R&B vocals at Small City Studios in East Hartford, CT. $70 per hour, and I engineer every session.',
     eyebrow: 'Recording / East Hartford, CT',
     crumb: 'Recording',
     headline: 'Vocal<br>tracking.',
@@ -264,10 +236,10 @@ const services = {
       'I engineer every session myself. Come in with the beat, the lyrics and a target for the day.',
     rate: '$70 / hr',
     sheet: [
-      ['Engineer', 'Included'],
+      ['Engineer', 'Chase Briley'],
       ['Block', 'Ask about 8+ hours'],
       ['Where', 'East Hartford, CT'],
-      ['Booked', 'After Chase confirms'],
+      ['Room', 'Live room + control room'],
     ],
     image: 'studio-recording',
     alt: 'Recording control room and live-room window at Small City Studios',
@@ -275,15 +247,15 @@ const services = {
     key: 'recording',
     sectionTitle: 'Session format.',
     sectionIntro:
-      'Hourly, engineer included. Plan the session around what you need to leave with.',
+      'Plan the hours around what you need to leave with.',
     features: [
       [
-        'Engineer included',
-        'Chase runs the session: mic, levels, punch-ins and comping as you go.',
+        'At the desk',
+        'I run the mic, levels, punch-ins and comping while you perform.',
       ],
       [
         'Come prepared',
-        'Lyrics written, beat in hand, references ready. Tell Chase who’s performing.',
+        'Lyrics written, beat in hand, references ready. Tell me who’s performing.',
       ],
       [
         'What you leave with',
@@ -292,7 +264,7 @@ const services = {
     ],
     priceTitle: '$70 / hour',
     priceText:
-      'Engineer included. Confirm session length and total with Chase before booking. Ask about block pricing for 8+ hours.',
+      'One hourly rate covers the room and my engineering.',
     prepare: [
       'Lyrics and a goal for the session',
       'The beat, with the rights to use it',
@@ -302,11 +274,11 @@ const services = {
     faqs: [
       [
         'First time in a studio?',
-        '<p>Say so when you book, along with what you want to record. Chase will help you plan the session length.</p>',
+        '<p>Say so when you book, along with what you want to record. I’ll help you plan the session length.</p>',
       ],
       [
         'Can I bring people?',
-        '<p>Bring the people on the record. Clear any other guests with Chase before the session.</p>',
+        '<p>Bring the people on the record. Clear any other guests with me before the session.</p>',
       ],
       [
         'How much time should I book?',
@@ -318,25 +290,24 @@ const services = {
       ],
       [
         'When is my session confirmed?',
-        '<p>When Chase confirms the date, scope, price and payment terms. Sending the booking form doesn’t hold a date.</p>',
+        '<p>When I confirm the date, scope, price and payment terms. Sending the booking form doesn’t hold a date.</p>',
       ],
     ],
   },
   production: {
     title: 'Rap Beats & Music Production with Chase Briley',
     description:
-      'Beats and production for rap, hip-hop and R&B with Chase Briley at Small City Studios. Licensed or custom, with files, credits and usage terms agreed in writing.',
+      'I make beats for rap, hip-hop and R&B at Small City Studios. License one I’ve made or have one built for your song, with files, credits and usage terms agreed in writing.',
     eyebrow: 'Beats & production',
     crumb: 'Beats & production',
     headline: 'Beats &amp;<br>production.',
     intro:
-      'Licensed beats or custom production. Bring a reference, a verse or a tempo.',
+      'I make beats for rap, hip-hop and R&amp;B, and I can record and mix the song on the same beat.',
     rate: 'Quoted per beat',
     sheet: [
       ['Options', 'License or custom'],
       ['Terms', 'Agreed in writing'],
       ['Producer', 'Chase Briley'],
-      ['Stems', 'If they’re in the scope'],
     ],
     image: 'studio-production',
     alt: 'Close view of the MIDI keyboard, controls, and monitors at the production desk',
@@ -344,15 +315,15 @@ const services = {
     key: 'beats',
     sectionTitle: 'How it works.',
     sectionIntro:
-      'Rights and deliverables are agreed in writing before work starts.',
+      'Every beat starts with these three questions.',
     features: [
       [
         'Direction',
-        'A reference, a verse, a mood or a BPM. Chase builds from what the song needs.',
+        'What the song needs: a reference track, a verse, a mood or a BPM.',
       ],
       [
         'License or custom',
-        'An existing beat or a new one. Scope and price differ.',
+        'License a beat I’ve already made, or have me build one for your song.',
       ],
       [
         'Terms',
@@ -361,7 +332,7 @@ const services = {
     ],
     priceTitle: 'Quoted per beat.',
     priceText:
-      'Licenses and custom production carry different rights and prices. Tell Chase what you need and the terms are set up front.',
+      'The price depends on whether you license a beat or have one made, and which rights come with it.',
     prepare: [
       'A verse, hook or one-line description',
       'References for tempo, mood and instrumentation',
@@ -371,11 +342,11 @@ const services = {
     faqs: [
       [
         'Can I hear beats first?',
-        '<p>Yes. Ask Chase for options in the lane you want. The credits page lists released records, not a beat store.</p>',
+        '<p>Yes. Ask me for options in the lane you want. The credits page lists released records, not a beat store.</p>',
       ],
       [
         'Is it exclusive?',
-        '<p>Only if the terms say so. Licenses and custom work carry different rights. Get it in writing.</p>',
+        '<p>Only if the terms say so. Exclusive rights are written down before you pay.</p>',
       ],
       [
         'Do I get stems?',
@@ -383,7 +354,7 @@ const services = {
       ],
       [
         'Can you record and mix it too?',
-        '<p>Yes. Production, recording and mixing are each scoped and priced before work starts.</p>',
+        '<p>Yes. Pick “Not sure yet” on the booking form, describe the whole project, and I’ll price each part.</p>',
       ],
     ],
   },
@@ -438,7 +409,7 @@ const prep = (s) =>
   `<section class="prep-section" aria-labelledby="prep-heading"><div class="container">${setHead('prep-heading', 'Have this ready.', 'It gets you an accurate quote and a tighter session.')}<ol class="checklist" role="list">${s.prepare.map((p, i) => `<li><span class="check-n">${pad(i + 1)}</span><span class="check-text">${p}</span></li>`).join('')}</ol></div></section>`
 
 const faqSection = (items) =>
-  `<section class="faq-section" aria-labelledby="faq-heading"><div class="container faq-grid">${setHead('faq-heading', 'Common questions.', 'Anything else, text Chase.')}${faq(items)}</div></section>`
+  `<section class="faq-section" aria-labelledby="faq-heading"><div class="container faq-grid">${setHead('faq-heading', 'Common questions.', 'Anything else, text me.')}${faq(items)}</div></section>`
 
 function servicePage(s, name) {
   const piece = {
@@ -485,10 +456,10 @@ function projectsPage() {
 // Bio: Chase as a poster in the room's light, his story beside the one number in it.
 function bioPage() {
   const story = [
-    'Ty Davis and I started this place to shake up the rap, hip-hop and R&amp;B scene in New England. Ty’s role has shifted. I’m still here, still pushing.',
-    'I’m self-taught. Never stopping, always grinding. Respect from local artists and peers is what I’m about.',
-    'Over 250 artists so far, and we’re just getting started, expanding beyond our home turf.',
-    'Real connections, real collaborations. You’ll see me mixing and mastering right in front of you. I keep it transparent, keep it raw. When you work with me, you’re getting something personal.',
+    'Ty Davis and I started this place to shake up the rap, hip-hop and R&amp;B scene in New England. Ty has since stepped out of the sessions, but he still supports the business behind the scenes. When you book today, you’re working with me.',
+    'I’m self-taught. I started making beats in high school in 2014, and I haven’t stopped learning since. Every artist and every session still teaches me something, and I bring all of it to the next record.',
+    'This work is about people. Sessions here are laid-back, and by the end of one we’re usually talking like we’ve known each other for years. Artists feel that, and it’s a big part of why they keep coming back.',
+    'Over 250 artists have recorded here so far, and I’m just getting started. I mix and master right in front of you, so you hear every decision as it’s made. When you work with me, it’s personal.',
   ]
   const internLink = link(
     'sms:' + site.tel,
@@ -498,9 +469,9 @@ function bioPage() {
     '<a data-sms-body="Hi Chase, I’m interested in an internship at Small City Studios." ',
   )
   return `<section class="bio-poster" aria-labelledby="page-title"><div class="poster duo duo-poster"><img src="/assets/chase-bio-1274.webp" srcset="/assets/chase-bio-640.webp 640w, /assets/chase-bio-1274.webp 1274w" sizes="100vw" width="1274" height="849" alt="Chase Briley in a white tee and Champion cap, hands on his backpack straps" fetchpriority="high"><div class="container poster-copy">${breadcrumb('Chase Briley')}<p class="eyebrow page-kicker">Owner / Engineer / Producer</p><h1 class="page-title bio-name" id="page-title">${lit('Chase Briley.')}</h1></div></div></section>
-  <section class="bio-story" aria-labelledby="story-heading"><div class="container bio-grid"><div class="bio-stat"><p class="bio-number" aria-hidden="true">250+</p><p class="bio-number-cap">Artists through the room so far.</p></div><div class="bio-words"><h2 id="story-heading" class="bio-lead voice">I’m Chase Briley, the guy behind Small City Studios.</h2>${story.map((p) => `<p class="voice">${p}</p>`).join('')}<div class="words-close">${signature()}${link('/booking/', 'Book with Chase', 'button button-primary')}</div></div></div></section>
+  <section class="bio-story" aria-labelledby="story-heading"><div class="container bio-grid"><div class="bio-stat"><p class="bio-number" aria-hidden="true">250+</p><p class="bio-number-cap">Artists through the room so far.</p></div><div class="bio-words"><h2 id="story-heading" class="bio-lead voice">I’m Chase Briley, the guy behind Small City Studios.</h2>${story.map((p) => `<p class="voice">${p}</p>`).join('')}<div class="words-close">${signature()}${link('/booking/', 'Book a session', 'button button-primary')}</div></div></div></section>
   <section class="intern-band" aria-labelledby="intern-heading"><div class="container intern-grid"><h2 id="intern-heading">${lit('Internships.')}</h2><div class="intern-words"><p class="voice intern-lead">Helping artists like you find success is what I care about most.</p><p class="voice">I’m also about bringing up the next generation. If you’re eager to learn the game, ask me about an internship.</p>${internLink}</div></div></section>
-  <section class="process-section"><div class="container"><div class="process-head"><h2>Scope first.<br>Then the session.</h2><p>Work, price and date are confirmed before you commit.</p></div>${processSteps}</div></section>${cta()}`
+  ${processSection()}${cta()}`
 }
 
 function bookingPage() {
@@ -508,26 +479,25 @@ function bookingPage() {
     ['Fill this in.', 'The song, the service and what it needs.'],
     [
       'Review and text it.',
-      'Your text app opens with the message. Nothing sends from this page.',
+      'Your text app opens with the message, and you press send.',
     ],
     [
-      'Chase confirms.',
+      'I confirm.',
       'Scope, price and date, directly with you. This form doesn’t hold a date.',
     ],
   ]
-  return `<section class="booking-section" aria-labelledby="page-title"><div class="container booking-grid"><div class="booking-intro">${breadcrumb('Book a session')}<p class="eyebrow page-kicker">Book / Inquire</p><h1 class="page-title" id="page-title">${lit('Book a session.')}</h1><p class="page-lead">Price is confirmed before any work starts.</p></div><div class="form-panel"><form id="project-form" data-tel="${site.tel}" data-phone="${site.phone}"><ol class="form-progress" role="list" aria-label="Project message steps"><li aria-current="step">01 / Project</li><li>02 / Review &amp; text</li></ol><div id="form-errors" class="form-errors" tabindex="-1" aria-labelledby="errors-title" hidden><p id="errors-title">Check these fields.</p><ul id="error-links"></ul></div><div class="form-field"><label for="artist">Artist name <span>(required)</span></label><input id="artist" name="artist" autocomplete="name" aria-describedby="artist-error" required maxlength="100" placeholder="Artist or full name"><p class="field-error" id="artist-error" hidden></p></div><fieldset class="service-options"><legend>Service <span>(required)</span></legend><label><input type="radio" name="service" value="mixing" required><span>Mixing &amp; mastering</span><small>I have recordings to mix.</small></label><label><input type="radio" name="service" value="recording" required><span>Recording</span><small>I need studio time.</small></label><label><input type="radio" name="service" value="beats" required><span>Beats &amp; production</span><small>I need a beat.</small></label><label><input type="radio" name="service" value="unsure" required checked><span>Not sure yet</span><small>Help me pick.</small></label></fieldset><div class="form-field" id="source-field"><label for="source">What files do you have?</label><div class="select-wrap"><select id="source" name="source"><option value="Not sure yet">Not sure yet</option><option value="Vocals over a 2-track beat">Vocals over a 2-track beat</option><option value="Tracked-out stems">Tracked-out stems</option></select><svg viewBox="0 0 8 5" width="8" height="5" fill="none" aria-hidden="true"><path d="M.5.5 4 4 7.5.5" stroke="currentColor"/></svg></div></div><div class="form-field"><label for="goal">Project details <span>(required)</span></label><textarea id="goal" name="goal" rows="4" aria-describedby="goal-error" required minlength="10" maxlength="2000" placeholder="Song count, what’s done, what you need."></textarea><p class="field-error" id="goal-error" hidden></p></div><div class="form-field"><label for="demo">Rough mix or reference link <span>(optional)</span></label><input id="demo" name="demo" type="url" aria-describedby="demo-hint demo-error" placeholder="https://" maxlength="1000"><p id="demo-hint" class="field-hint">A private SoundCloud, Drive or Dropbox link works.</p><p class="field-error" id="demo-error" hidden></p></div><details class="optional-details"><summary>Timing &amp; budget <span>Optional +</span></summary><div class="optional-fields"><div class="form-field"><label for="timing">Deadline <span>(optional)</span></label><input id="timing" name="timing" maxlength="100" placeholder="Release date, session date, or none"></div><div class="form-field"><label for="budget">Budget <span>(optional)</span></label><input id="budget" name="budget" maxlength="150" placeholder="A rough number is fine"></div></div></details><p class="form-note">You review the text before sending it. Nothing is sent or booked from this page.</p><button type="submit" class="button button-primary" disabled>${recLight}${label('Review message')}</button><p class="small privacy-note">Entries stay in this browser tab until you send them. <a href="/privacy/">Privacy</a></p></form><section id="message-review" aria-labelledby="review-heading" hidden><ol class="form-progress" role="list" aria-label="Project message steps"><li>01 / Project</li><li aria-current="step">02 / Review &amp; text</li></ol><h2 id="review-heading" tabindex="-1">Your message.</h2><p>Check it, then open your text app to send it to Chase. Or copy it and text ${site.phone}.</p><label for="message-text" class="visually-hidden">Your prepared project message</label><textarea id="message-text" name="prepared-message" rows="14" readonly></textarea><div class="review-actions"><a id="send-text" href="sms:${site.tel}" class="button button-primary">${recLight}${label('Open text message')}</a><button id="copy-message" type="button" class="button button-outline">${label('Copy message')}</button></div><p id="copy-status" class="small" role="status" aria-live="polite"></p><button type="button" class="text-link" id="edit-message">${label('Edit details')}</button><p class="form-note">Opening your text app doesn’t send the message. Chase confirms the booking with you directly.</p></section><noscript><p>You can <a href="sms:${site.tel}">text</a> or <a href="tel:${site.tel}">call Chase at ${site.phone}</a> to book.</p></noscript></div><div class="booking-aside"><ol class="rail" role="list">${rail.map(([h, p], i) => `<li><span class="rail-n">${pad(i + 1)}</span><h2>${h}</h2><p>${p}</p></li>`).join('')}</ol><div class="contact-mini"><p class="eyebrow">Or call / text</p><a href="tel:${site.tel}">${label(site.phone)}</a></div><figure class="booking-photo duo">${studioImage('studio-session', 'The studio seating area beside the production workstation', { sizes: '(max-width: 759px) 1px, 420px' })}</figure></div></div></section>`
+  return `<section class="booking-section" aria-labelledby="page-title"><div class="container booking-grid"><div class="booking-intro">${breadcrumb('Book a session')}<p class="eyebrow page-kicker">Book / Inquire</p><h1 class="page-title" id="page-title">${lit('Book a session.')}</h1><p class="page-lead">Fill this in and it becomes a text message to me, ready for you to send.</p></div><div class="form-panel"><form id="project-form" data-tel="${site.tel}" data-phone="${site.phone}"><ol class="form-progress" role="list" aria-label="Project message steps"><li aria-current="step">01 / Project</li><li>02 / Review &amp; text</li></ol><div id="form-errors" class="form-errors" tabindex="-1" aria-labelledby="errors-title" hidden><p id="errors-title">Check these fields.</p><ul id="error-links"></ul></div><div class="form-field"><label for="artist">Artist name <span>(required)</span></label><input id="artist" name="artist" autocomplete="name" aria-describedby="artist-error" required maxlength="100" placeholder="Artist or full name"><p class="field-error" id="artist-error" hidden></p></div><fieldset class="service-options"><legend>Service <span>(required)</span></legend><label><input type="radio" name="service" value="mixing" required><span>Mixing &amp; mastering</span><small>I have recordings to mix.</small></label><label><input type="radio" name="service" value="recording" required><span>Recording</span><small>I need studio time.</small></label><label><input type="radio" name="service" value="beats" required><span>Beats &amp; production</span><small>I need a beat.</small></label><label><input type="radio" name="service" value="unsure" required checked><span>Not sure yet</span><small>Help me pick.</small></label></fieldset><div class="form-field" id="source-field"><label for="source">What files do you have?</label><div class="select-wrap"><select id="source" name="source"><option value="Not sure yet">Not sure yet</option><option value="Vocals over a 2-track beat">Vocals over a 2-track beat</option><option value="Tracked-out stems">Tracked-out stems</option></select><svg viewBox="0 0 8 5" width="8" height="5" fill="none" aria-hidden="true"><path d="M.5.5 4 4 7.5.5" stroke="currentColor"/></svg></div></div><div class="form-field"><label for="goal">Project details <span>(required)</span></label><textarea id="goal" name="goal" rows="4" aria-describedby="goal-error" required minlength="10" maxlength="2000" placeholder="Song count, what’s done, what you need."></textarea><p class="field-error" id="goal-error" hidden></p></div><div class="form-field"><label for="demo">Rough mix or reference link <span>(optional)</span></label><input id="demo" name="demo" type="url" aria-describedby="demo-hint demo-error" placeholder="https://" maxlength="1000"><p id="demo-hint" class="field-hint">A private SoundCloud, Drive or Dropbox link works.</p><p class="field-error" id="demo-error" hidden></p></div><details class="optional-details"><summary>Timing &amp; budget <span>Optional +</span></summary><div class="optional-fields"><div class="form-field"><label for="timing">Deadline <span>(optional)</span></label><input id="timing" name="timing" maxlength="100" placeholder="Release date, session date, or none"></div><div class="form-field"><label for="budget">Budget <span>(optional)</span></label><input id="budget" name="budget" maxlength="150" placeholder="A rough number is fine"></div></div></details><p class="form-note">You’ll see the full message on the next step.</p><button type="submit" class="button button-primary" disabled>${recLight}${label('Review message')}</button><p class="small privacy-note">Entries stay in this browser tab until you send them. <a href="/privacy/">Privacy</a></p></form><section id="message-review" aria-labelledby="review-heading" hidden><ol class="form-progress" role="list" aria-label="Project message steps"><li>01 / Project</li><li aria-current="step">02 / Review &amp; text</li></ol><h2 id="review-heading" tabindex="-1">Your message.</h2><p>Check it, then open your text app to send it to me. Or copy it and text ${site.phone}.</p><label for="message-text" class="visually-hidden">Your prepared project message</label><textarea id="message-text" name="prepared-message" rows="14" readonly></textarea><div class="review-actions"><a id="send-text" href="sms:${site.tel}" class="button button-primary">${recLight}${label('Open text message')}</a><button id="copy-message" type="button" class="button button-outline">${label('Copy message')}</button></div><p id="copy-status" class="small" role="status" aria-live="polite"></p><button type="button" class="text-link" id="edit-message">${label('Edit details')}</button><p class="form-note">Opening your text app doesn’t send it. You still press send.</p></section><noscript><p>You can <a href="sms:${site.tel}">text</a> or <a href="tel:${site.tel}">call me at ${site.phone}</a> to book.</p></noscript></div><div class="booking-aside"><ol class="rail" role="list">${rail.map(([h, p], i) => `<li><span class="rail-n">${pad(i + 1)}</span><h2>${h}</h2><p>${p}</p></li>`).join('')}</ol><div class="contact-mini"><p class="eyebrow">Or call / text</p><a href="tel:${site.tel}">${label(site.phone)}</a></div><figure class="booking-photo duo">${studioImage('studio-session', 'The studio seating area beside the production workstation', { sizes: '(max-width: 759px) 1px, 420px' })}</figure></div></div></section>`
 }
 
 // Contact: the number is the page.
 function contactPage() {
   const maps =
     'https://www.google.com/maps/search/?api=1&query=87%20Church%20Street%20East%20Hartford%20CT%2006108'
-  return `<section class="page-hero contact-hero" aria-labelledby="page-title"><div class="container">${breadcrumb('Contact')}<p class="closing-status"><span class="rec-dot" aria-hidden="true"></span>By appointment</p><h1 class="page-title" id="page-title">${lit('Contact.')}</h1><p class="closing-phone contact-number"><a href="tel:${site.tel}"><span class="visually-hidden">Call </span>${site.phone}</a></p><div class="contact-foot"><p class="page-lead">Call or text. For mixing, recording or beats, include the song and what it needs.</p><div class="contact-actions">${link('sms:' + site.tel, 'Text Chase')}${link('/booking/', 'Book a session', 'button button-primary')}</div></div></div></section>
+  return `<section class="page-hero contact-hero" aria-labelledby="page-title"><div class="container">${breadcrumb('Contact')}<p class="closing-status"><span class="rec-dot" aria-hidden="true"></span>By appointment</p><h1 class="page-title" id="page-title">${lit('Contact.')}</h1><p class="closing-phone contact-number"><a href="tel:${site.tel}"><span class="visually-hidden">Call </span>${site.phone}</a></p><div class="contact-foot"><p class="page-lead">Call or text. For mixing, recording or beats, include the song and what it needs.</p><div class="contact-actions">${link('sms:' + site.tel, 'Text me')}${link('/booking/', 'Book a session', 'button button-primary')}</div></div></div></section>
   <section class="studio-block" aria-labelledby="studio-heading"><div class="container studio-grid"><div class="studio-where"><h2 id="studio-heading">${lit('East Hartford, Connecticut.')}</h2><address class="studio-address">87 Church Street<br>East Hartford, CT 06108</address>${link(maps, 'Directions')}</div>${sessionSheet(
     [
       ['Visits', 'By appointment only'],
-      ['Arrival', 'Confirm details with Chase'],
-      ['Guests', 'Clear them with Chase first'],
+      ['Guests', 'Clear them with me first'],
     ],
   )}</div></section>
   <section class="contact-photo"><figure class="duo">${studioImage('studio-wide', 'Wide view of the Small City Studios control room', { sizes: '100vw', lazy: false })}<figcaption class="photo-tag">87 Church St / East Hartford, CT</figcaption></figure></section>`
@@ -536,7 +506,7 @@ function contactPage() {
 const policy = [
   [
     'Booking form',
-    '<p>The form builds a message in your browser. It does not submit your entries to Small City Studios, save them in browser storage, or create a booking. You choose whether to open your text app or copy the message. Once sent, your message is handled by your messaging provider and the recipient.</p>',
+    '<p>The form builds a message in your browser. It does not send your entries to me, save them in browser storage, or create a booking. You choose whether to open your text app or copy the message. Once sent, your message is handled by your messaging provider and by me.</p>',
   ],
   [
     'Videos and external links',
@@ -548,7 +518,7 @@ const policy = [
   ],
   [
     'Questions',
-    `<p>For questions about information you share with the studio, contact Chase at <a href="tel:${site.tel}">${site.phone}</a>. Don’t send sensitive personal information in a booking message.</p>`,
+    `<p>For questions about information you share with me, text or call me at <a href="tel:${site.tel}">${site.phone}</a>. Don’t send sensitive personal information in a booking message.</p>`,
   ],
 ]
 function privacyPage() {
@@ -590,7 +560,7 @@ export function pages() {
       path: '/',
       title: 'Rap Recording, Mixing & Beat Production in Connecticut',
       description:
-        'Rap, hip-hop and R&B recording, mixing, mastering and beat production with Chase Briley at Small City Studios, East Hartford, CT. Studio engineering $70/hr. Remote mixing available.',
+        'I’m Chase Briley. I record, mix, master and produce rap, hip-hop and R&B at Small City Studios in East Hartford, CT. Studio time is $70/hr, and I mix remotely too.',
       content: home(),
       bodyClass: 'home-page',
       og: 'home',
@@ -619,7 +589,7 @@ export function pages() {
       path: '/bio/',
       title: 'Chase Briley, Engineer & Producer',
       description:
-        'Chase Briley: owner, recording engineer and producer at Small City Studios in East Hartford, Connecticut.',
+        'I’m Chase Briley, owner, recording engineer and producer at Small City Studios in East Hartford, Connecticut.',
       content: bioPage(),
       og: 'bio',
       ogType: 'profile',
@@ -629,7 +599,7 @@ export function pages() {
       path: '/booking/',
       title: 'Book a Session: Mixing, Recording & Beats',
       description:
-        'Book recording, mixing or beat production with Small City Studios. Send project details to Chase; scope, price and date are confirmed before anything is booked.',
+        'Book recording, mixing or beat production at Small City Studios. Send me the project details, and I’ll confirm scope, price and date before anything is booked.',
       content: bookingPage(),
       og: 'booking',
       crumb: 'Book a session',
@@ -638,7 +608,7 @@ export function pages() {
       path: '/contact/',
       title: 'Contact & Directions, East Hartford, CT',
       description:
-        'Call or text Small City Studios at 860-993-0052. 87 Church Street, East Hartford, Connecticut. By appointment only.',
+        'Call or text me at 860-993-0052. Small City Studios is at 87 Church Street, East Hartford, Connecticut. By appointment only.',
       content: contactPage(),
       og: 'contact',
       crumb: 'Contact',

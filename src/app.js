@@ -16,6 +16,28 @@ if (menuToggle && mobileNav) {
   matchMedia('(min-width: 1000px)').addEventListener('change', e => { if (e.matches) closeMenu(); });
 }
 
+// Desktop nav playhead: follows hover and keyboard focus, then returns to the current page.
+const rail = document.querySelector('.desktop-nav');
+if (rail?.querySelector('.playhead')) {
+  const current = rail.querySelector('a[aria-current]');
+  const park = link => {
+    if (!link) { rail.removeAttribute('data-playhead'); return; }
+    rail.style.setProperty('--ph-x', `${link.offsetLeft}px`);
+    rail.style.setProperty('--ph-w', link.offsetWidth);
+    rail.setAttribute('data-playhead', '');
+  };
+  const home = () => park(current);
+  rail.classList.add('has-playhead');
+  home();
+  document.fonts?.ready.then(home);
+  addEventListener('resize', home);
+  requestAnimationFrame(() => requestAnimationFrame(() => rail.classList.add('is-live')));
+  rail.addEventListener('pointerover', e => { const link = e.target.closest('a'); if (link) park(link); });
+  rail.addEventListener('pointerleave', () => { if (!rail.contains(document.activeElement)) home(); });
+  rail.addEventListener('focusin', e => park(e.target.closest('a')));
+  rail.addEventListener('focusout', e => { if (!rail.contains(e.relatedTarget)) home(); });
+}
+
 const dialog = document.querySelector('#video-dialog');
 if (dialog) {
   const videoContainer = dialog.querySelector('#video-container');
@@ -71,7 +93,7 @@ if (form) {
   const errorLinks = document.querySelector('#error-links');
   const validators = {
     artist: value => value.trim() ? '' : 'Enter your name or artist name.',
-    goal: value => value.trim().length >= 10 ? '' : 'Tell Chase a little more about the project (at least 10 characters).',
+    goal: value => value.trim().length >= 10 ? '' : 'Tell me a little more about the project (at least 10 characters).',
     demo: value => {
       if (!value.trim()) return '';
       try { return ['http:', 'https:'].includes(new URL(value).protocol) ? '' : 'Use a listening link beginning with https:// or http://.'; }
@@ -255,62 +277,3 @@ if (roomDialog) {
   roomDialog.addEventListener('close', () => { document.body.classList.remove('dialog-open'); frames[index].focus(); });
 }
 
-// Client reviews: one pass through every quote, then stop. The CSS meter is the timer, so hover,
-// focus, an off-screen section or a background tab hold it. Prev/Next stop the rotation for good.
-const reviews = document.querySelector('[data-reviews]');
-if (reviews) {
-  const slides = [...reviews.querySelectorAll('.review')];
-  const track = reviews.querySelector('.reviews-track');
-  const controls = reviews.querySelector('.reviews-controls');
-  const toggle = reviews.querySelector('[data-review-toggle]');
-  const index = reviews.querySelector('[data-review-index]');
-  const device = matchMedia('(prefers-reduced-motion: reduce)');
-  let current = 0, shown = 1, inView = false;
-  const dwell = el => Math.min(14, Math.max(6, 2.5 + el.textContent.trim().split(/\s+/).length * 0.3));
-  const restartMeter = () => {
-    const meter = reviews.querySelector('.reviews-meter>span');
-    reviews.style.setProperty('--dwell', `${dwell(slides[current])}s`);
-    meter.replaceWith(meter.cloneNode());
-  };
-  const show = (i, announce) => {
-    const previous = current;
-    current = (i + slides.length) % slides.length;
-    track.setAttribute('aria-live', announce ? 'polite' : 'off');
-    slides.forEach((slide, n) => { slide.inert = n !== current; });
-    index.textContent = String(current + 1).padStart(2, '0');
-    if (previous !== current) motion.animate(slides[current], [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 420, easing: 'cubic-bezier(.2,.7,.2,1)' });
-    restartMeter();
-  };
-  const setPlaying = on => {
-    const playing = on && !device.matches;
-    reviews.classList.toggle('is-playing', playing);
-    toggle.querySelector('.label').textContent = playing ? 'Pause' : 'Play';
-    toggle.setAttribute('aria-label', playing ? 'Pause reviews' : 'Play reviews');
-    toggle.hidden = device.matches;
-    restartMeter();
-  };
-  const hold = () => reviews.classList.toggle('is-held', !inView || document.hidden);
-
-  reviews.classList.add('reviews-ready');
-  controls.hidden = false;
-  show(0, false);
-  setPlaying(true);
-  hold();
-
-  reviews.addEventListener('animationend', e => {
-    if (e.animationName !== 'review-meter') return;
-    if (shown >= slides.length) { setPlaying(false); return; }
-    shown++;
-    show(current + 1, false);
-  });
-  toggle.addEventListener('click', () => {
-    const play = !reviews.classList.contains('is-playing');
-    if (play) shown = 1;
-    setPlaying(play);
-  });
-  reviews.querySelector('[data-review-prev]').addEventListener('click', () => { setPlaying(false); show(current - 1, true); });
-  reviews.querySelector('[data-review-next]').addEventListener('click', () => { setPlaying(false); show(current + 1, true); });
-  new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; hold(); }, { threshold: 0.35 }).observe(track);
-  document.addEventListener('visibilitychange', hold);
-  device.addEventListener('change', () => setPlaying(false));
-}
